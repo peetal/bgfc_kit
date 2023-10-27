@@ -50,9 +50,16 @@ def generate_FIRdesignMat_template_toml(output_dir):
 def write_FIRdesginMat(cfg_dir, output_dir): 
 
     """
-    
-    """
+    This is specific to block design, with all fMRI runs being identical, and only the task/condition
+    being performed differ across runs. In this design, each RUN consists of numbers of EPOCHS (block)
+    of the same condition. 
+    FIR model tries to model specified TR within epochs for each task/condition. For example, if there 
+    are 6 tasks, and I would like to model the first 36 TRs within each epoch, then i would have 36*6 regressor. 
 
+    Parameters: 
+    cfg_dir: the path for the toml configuration file 
+    output_dir: where the design matrix is writing to 
+    """
 
     # load configuration file 
     with open(cfg_dir, "r") as toml_file:
