@@ -4,7 +4,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from itertools import product
-from .structDict import recurseCreateStructDict
+from structDict import recurseCreateStructDict
 from subprocess import subprocess
 
 
