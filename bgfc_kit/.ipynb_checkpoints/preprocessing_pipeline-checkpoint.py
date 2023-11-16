@@ -4,8 +4,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from itertools import product
-from structDict import recurseCreateStructDict
-from subprocess import subprocess
+from .structDict import recurseCreateStructDict
+from itertools import chain, product
+import subprocess
 
 
 
@@ -67,13 +68,22 @@ def run_postfMRIprep_pipeline(cfg_dir):
     cfg = recurseCreateStructDict(cfg)
     cfg = cfg.PARAMETERS
     
+    task_id=""
+    for task in cfg.task_id: 
+        task_id += task
+        task_id += " "
+    rest_tr=""
+    for tr in eval(cfg.runRest_tr): 
+        rest_tr += str(tr) 
+        rest_tr += " "
+    
+    
     # run the python script 
     try:
-        command = f"python3 {script_path} --sub-id {cfg.sub_id} --task-id {cfg.task_id} --space {cfg.space} \
-            --base-dir {cfg.base_dir} --output-dir {cfg.output_dir} --designMat-dir {cfg.designMat_dir} \
-            --run-restTR {cfg.runRest_tr} --fwhm {cfg.fwhm} --hpcutoff {cfg.hpcutpff} --nproc {cfg.nproc}"
-        subprocess.run(command, check=True)
+        command = f"python3 {script_path} --sub-id {cfg.sub_id} --task-id {task_id} --space {cfg.space} --base-dir {cfg.base_dir} --output-dir {cfg.output_dir} --designMat-dir {cfg.designMat_dir} --run-restTR {rest_tr} --fwhm {cfg.fwhm} --hpcutoff {cfg.hpcutoff} --nproc {cfg.nproc}"
+        print(f"running the command {command}")
+        subprocess.run(command, shell=True)
     except subprocess.CalledProcessError as e:
         print(f"Error running script: {e}")
 
-def submit_postfMRIprep_pipeline_SLURM(config_dir, partition):
+#def submit_postfMRIprep_pipeline_SLURM(config_dir, partition):
