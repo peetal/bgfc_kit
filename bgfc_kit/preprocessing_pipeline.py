@@ -47,14 +47,15 @@ def generate_postfMRIprep_pipeline_template_toml(output_dir):
     # Write the data to the TOML file
     with open(os.path.join(output_dir,"postfMRIprep_pipeline_config.toml"), "w") as toml_file:
         toml.dump(data, toml_file)
-
-
-def run_postfMRIprep_pipeline(cfg_dir): 
-
+        
+def _generate_python_command(cfg_dir): 
+    
     """
-    This function takes in a configuration file and then run the post-fMRIprep preprocessing pipeline 
+    This function takes in the configuration file and generate the corresponding python command 
+    for post-fMRIprep preprocessing pipeline
+    cfg_dir: the directory of the configuration file 
     """
-
+    
     # Get the path of the current script
     current_script_path = os.path.realpath(__file__)
 
@@ -68,6 +69,7 @@ def run_postfMRIprep_pipeline(cfg_dir):
     cfg = recurseCreateStructDict(cfg)
     cfg = cfg.PARAMETERS
     
+    # task_id and runRest_tr are lists, reformat them for feeding into argparse. 
     task_id=""
     for task in cfg.task_id: 
         task_id += task
@@ -77,13 +79,72 @@ def run_postfMRIprep_pipeline(cfg_dir):
         rest_tr += str(tr) 
         rest_tr += " "
     
+    # generate and return command 
+    command = f"python3 {script_path} --sub-id {cfg.sub_id} --task-id {task_id} --space {cfg.space} --base-dir {cfg.base_dir} --output-dir {cfg.output_dir} --designMat-dir {cfg.designMat_dir} --run-restTR {rest_tr} --fwhm {cfg.fwhm} --hpcutoff {cfg.hpcutoff} --nproc {cfg.nproc}"
+    
+    return command
+
+
+def run_postfMRIprep_pipeline(cfg_dir): 
+
+    """
+    This function submit the python command to the current node
+    Not to SLURM
+    """
+    # get command 
+    command = _generate_python_command(cfg_dir)
     
     # run the python script 
     try:
-        command = f"python3 {script_path} --sub-id {cfg.sub_id} --task-id {task_id} --space {cfg.space} --base-dir {cfg.base_dir} --output-dir {cfg.output_dir} --designMat-dir {cfg.designMat_dir} --run-restTR {rest_tr} --fwhm {cfg.fwhm} --hpcutoff {cfg.hpcutoff} --nproc {cfg.nproc}"
-        print(f"running the command {command}")
         subprocess.run(command, shell=True)
     except subprocess.CalledProcessError as e:
         print(f"Error running script: {e}")
 
-#def submit_postfMRIprep_pipeline_SLURM(config_dir, partition):
+def submit_postfMRIprep_pipeline_SLURM(cfg_dir, shell_dir, account, partition, jobname, memory, time="1-00:00:00", log="%x_%A_%a.log", env="jupyterlab-tf-pyt-20211020"):
+    
+    """
+    This function first write out a shell script, then submit the python command to SLURM
+    Parameters: 
+    cfg_dir: the directory of the configuration file 
+    shell_dir: where to write the shell script, including script's name 
+    account: the lab account (e.g., hulacon) 
+    partition: the node partition (e.g., long, short, fat) 
+    memory: the amount of memory (e.g., 100GB)
+    """
+    # get command 
+    command = _generate_python_command(cfg_dir)
+    
+    # write shell scritp 
+    bash_script_content = \
+f'''#!/bin/bash
+#SBATCH --account={account}
+#SBATCH --partition={partition}  
+#SBATCH --job-name={jobname}  
+#SBATCH --mem={memory}
+#SBATCH --time={time}
+#SBATCH --output={log}
+
+module load fsl
+module load ants
+module load miniconda
+module load singularity
+conda activate {env}
+
+{command}
+'''
+
+    # Write the Bash script content to a file
+    with open(shell_dir, 'w') as file:
+        file.write(bash_script_content)
+
+    # Submit the Bash script using sbatch
+    sbatch_command = ['sbatch', shell_dir]
+    result = subprocess.run(sbatch_command, capture_output=True, text=True)
+
+    # Check the result
+    if result.returncode == 0:
+        print("Bash script submitted successfully.")
+        print("Job ID:", result.stdout.strip())
+    else:
+        print("Error submitting Bash script.")
+        print("Error message:", result.stderr)

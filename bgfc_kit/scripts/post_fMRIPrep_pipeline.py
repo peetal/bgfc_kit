@@ -152,7 +152,7 @@ def _get_inormscale(median_values):
     return op_string
 
 # Zscore each seperate image using the mean and sd of the resting period. 
-def _zscore_withRestingPeriod(func, mask, subj_id, task_id):
+def _zscore_withRestingPeriod(func, mask, subj_id, task_id, resting_tr):
     
     from nilearn import image, masking
     import pandas as pd
@@ -488,11 +488,12 @@ if __name__ == "__main__":
     # THIS IS THE END OF MAPNODE!
     z_score = pe.MapNode(
     interface=niu.Function(
-        input_names=['func','mask','subj_id','task_id'],
+        input_names=['func','mask','subj_id','task_id','resting_tr'],
         output_names=['res_file_demean'],
         function=_zscore_withRestingPeriod),
         iterfield = ['func','mask','task_id'],
     name='zscore')
+    z_score.inputs.resting_tr = resting_tr
 
     # Concatenate 6 z_scored files
     concatenate = pe.Node(interface = fsl.Merge(), name = 'merge_res')
