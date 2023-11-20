@@ -1,7 +1,3 @@
-"""
-
-2. work on the motion correction part 
-"""
 import sys
 import os, glob, toml 
 import pandas as pd
@@ -14,7 +10,7 @@ from .structDict import recurseCreateStructDict
 
 def generate_FIRdesignMat_template_toml(output_dir): 
     """
-This function generates a toml config file for the FIR design matrix. You need to fill the parameters of your design. 
+This is the configuration file for constructing FIR design matrix. You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. If you do not need to account for motion (i.e., running only 'write_vanilla_FIRdesginMat'), you won't need to fill out anything below 'epoch_per_run'.
 PARAMETERS:
 - "conditions": "A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs." 
 - "rep": "The number of runs each condition is repeated"
