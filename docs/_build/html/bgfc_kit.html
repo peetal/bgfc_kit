@@ -1,0 +1,573 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bgfc_kit package &mdash; BGFCkit Documentation 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="bgfc_kit" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> BGFCkit Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">bgfc_kit</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">bgfc_kit package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bgfc_kit.bgfc_analyses">bgfc_kit.bgfc_analyses module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bgfc_kit.fir_design_matrix">bgfc_kit.fir_design_matrix module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bgfc_kit.preprocessing_pipeline">bgfc_kit.preprocessing_pipeline module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bgfc_kit.structDict">bgfc_kit.structDict module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-bgfc_kit">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">BGFCkit Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">bgfc_kit</a> &raquo;</li>
+        
+      <li>bgfc_kit package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/bgfc_kit.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="bgfc-kit-package">
+<h1>bgfc_kit package<a class="headerlink" href="#bgfc-kit-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bgfc_kit.bgfc_analyses">
+<span id="bgfc-kit-bgfc-analyses-module"></span><h2>bgfc_kit.bgfc_analyses module<a class="headerlink" href="#module-bgfc_kit.bgfc_analyses" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.compute_epoch_cond_connectome_ztrans">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">compute_epoch_cond_connectome_ztrans</code><span class="sig-paren">(</span><em class="sig-param">epoch_data: numpy.ndarray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#compute_epoch_cond_connectome_ztrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.compute_epoch_cond_connectome_ztrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the connectome for each epoch, then vectorize each epoch 
+return a list of vectorized connectome</p>
+<dl class="simple">
+<dt>epoch_data: A list of 2d array. The length equals the number of participant. </dt><dd><p>Each array is of the shape 16epoch, 200parcels, 36TR/epoch</p>
+</dd>
+</dl>
+<p>A list (len = subject) of list (len = epoch = 16) of vectorized connectom</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.compute_epoch_cond_connectome_ztrans_nobadframe">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">compute_epoch_cond_connectome_ztrans_nobadframe</code><span class="sig-paren">(</span><em class="sig-param">epoch_data: numpy.ndarray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#compute_epoch_cond_connectome_ztrans_nobadframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.compute_epoch_cond_connectome_ztrans_nobadframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the connectome for each epoch for each condition</p>
+<p>Important: 
+1) If all frames within this epoch is np.nan, drop the epoch
+2) If some frames within this epoch is np.nan, drop the frame then compute the correlation matrix 
+Thus, per subject, per condition, not always 16 epochs!</p>
+<dl class="simple">
+<dt>epoch_data: A list of 2d array. The length equals the number of participant. </dt><dd><p>Each array is of the shape 16epoch, 200parcels, 36TR/epoch</p>
+</dd>
+</dl>
+<p>A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is the total number of epochs across all subjects.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.compute_epoch_cond_edgevec_ztrans_nobadframe">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">compute_epoch_cond_edgevec_ztrans_nobadframe</code><span class="sig-paren">(</span><em class="sig-param">epoch_data: numpy.ndarray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#compute_epoch_cond_edgevec_ztrans_nobadframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.compute_epoch_cond_edgevec_ztrans_nobadframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the connectome for each epoch, then vectorize each epoch 
+return a list of vectorized connectome</p>
+<dl class="simple">
+<dt>epoch_data: A list of 2d array. The length equals the number of participant. </dt><dd><p>Each array is of the shape 16epoch, 200parcels, 36TR/epoch</p>
+</dd>
+</dl>
+<p>A list (len = subject) of list (len = epoch = 16 or 8) of vectorized connectom(19800)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.compute_sub_cond_connectome_ztrans">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">compute_sub_cond_connectome_ztrans</code><span class="sig-paren">(</span><em class="sig-param">epoch_data: numpy.ndarray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#compute_sub_cond_connectome_ztrans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.compute_sub_cond_connectome_ztrans" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the connectome for each epoch, 
+and then AVERAGES across all peochs of the same condition</p>
+<dl class="simple">
+<dt>epoch_data: A list of 2d array. The length equals the number of participant. </dt><dd><p>Each array is of the shape 16epoch, 200parcels, 36TR/epoch</p>
+</dd>
+</dl>
+<p>A generator of 3d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.compute_sub_cond_connectome_ztrans_nobadframe">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">compute_sub_cond_connectome_ztrans_nobadframe</code><span class="sig-paren">(</span><em class="sig-param">epoch_data: numpy.ndarray</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#compute_sub_cond_connectome_ztrans_nobadframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.compute_sub_cond_connectome_ztrans_nobadframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes the connectome for each epoch, 
+and then AVERAGES across all peochs of the same condition. 
+Important: 
+1) If all frames within this epoch is np.nan, drop the epoch
+2) If some frames within this epoch is np.nan, drop the frame then compute the correlation matrix 
+Thus, per subject, per condition, not always 16 epochs!</p>
+<dl class="simple">
+<dt>epoch_data: A list of 2d array. The length equals the number of participant. </dt><dd><p>Each array is of the shape 16epoch, 200parcels, 36TR/epoch</p>
+</dd>
+</dl>
+<p>A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.compute_threshold">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">compute_threshold</code><span class="sig-paren">(</span><em class="sig-param">corMat</em>, <em class="sig-param">density</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#compute_threshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.compute_threshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function computes threshold given edge density (i.e., the percentage of edges to keep).</p>
+<p>corMat: one correlation matrix 
+density: the percentage of edges to keep (e.g., 15 means to keep the top 15%)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.construct_graphs">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">construct_graphs</code><span class="sig-paren">(</span><em class="sig-param">corMats</em>, <em class="sig-param">threshold=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#construct_graphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.construct_graphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function construct a unthresholded, weighted, graph for each connectome</p>
+<p>corMat_list: A list of connectome (i.e., correlation matrix)
+threshold: whether to include the edge, default is 0</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.construct_threshold_binary_graphs">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">construct_threshold_binary_graphs</code><span class="sig-paren">(</span><em class="sig-param">corMats</em>, <em class="sig-param">density</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#construct_threshold_binary_graphs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.construct_threshold_binary_graphs" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function construct thresholded, binary, graph for each connectome</p>
+<p>corMat_list: A list of connectome (i.e., correlation matrix)
+density: the percentage of edges to keep (e.g., 15 means to keep the top 15%)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.detect_bad_frame">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">detect_bad_frame</code><span class="sig-paren">(</span><em class="sig-param">sub</em>, <em class="sig-param">signal</em>, <em class="sig-param">run_prop=5</em>, <em class="sig-param">spike=2</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#detect_bad_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.detect_bad_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function aims to detect bad runs and bad frames</p>
+<p>Parameters: 
+sub: subject id (e.g., 1, 2, 14) 
+signal: the output of load_sub_data, the shape is nparcel, ts (200,3984)
+run_prop: the proportion of frames with FD &gt; 0.5 within each run, exceeding which removes the run (5%)
+spike: the spike cutoff (2mm)</p>
+<p>Return: 
+ts: signal without bad frames, the shape is still 200, 3984, but bad frames are np.nan across all 200 parcels</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.load_sub_data">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">load_sub_data</code><span class="sig-paren">(</span><em class="sig-param">base_dir: str</em>, <em class="sig-param">sub: int</em>, <em class="sig-param">subcortical: False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#load_sub_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.load_sub_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes in the subject ID and then parcellate residual activity data.</p>
+<p>input_data: a string pointing to the 4D timeseries niimg-like object (most likely to be the residual activity data). 
+atlas: a string pointing to the 3D atlas (Schaefer or HO). 
+mask: a string pointing to the 3D subject functional mask. 
+subcortical: if true, then include subcortical parcellation.</p>
+<p>The HOSPA atlas description is here: <a class="reference external" href="https://neurovault.org/images/1707/">https://neurovault.org/images/1707/</a> 
+But not all 21 parcels are worth looking at (e.g., 2 is cerebral cortex, 1 is while matter)</p>
+<p>4: left thalamus (201)
+5: left caudate (202)
+6: left putamen (203)
+7: left pallidum (204)
+#8: brain-stem
+9: left hippocampus (205)
+10: left amygdala (206)
+11: left accumbens (207)
+15: right thalamus (208)
+16: right caudate (209)
+17: right putamen (210)
+18: right pallidum (211)
+19: right hippocampus (212)
+20: right amygdala (213)
+21: right accumbens (214)</p>
+<p>signal: a 2d numpy array, first dimension is Parcel and the second is TR</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.load_sub_evoked_data">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">load_sub_evoked_data</code><span class="sig-paren">(</span><em class="sig-param">base_dir: str</em>, <em class="sig-param">sub: int</em>, <em class="sig-param">subcortical: False</em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#load_sub_evoked_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.load_sub_evoked_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes in the subject ID and then parcellate residual activity data.</p>
+<p>input_data: a string pointing to the 4D timeseries niimg-like object (most likely to be the residual activity data). 
+atlas: a string pointing to the 3D atlas (Schaefer or HO). 
+mask: a string pointing to the 3D subject functional mask. 
+subcortical: if true, then include subcortical parcellation.</p>
+<p>The HOSPA atlas description is here: <a class="reference external" href="https://neurovault.org/images/1707/">https://neurovault.org/images/1707/</a> 
+But not all 21 parcels are worth looking at (e.g., 2 is cerebral cortex, 1 is while matter)</p>
+<p>4: left thalamus (201)
+5: left caudate (202)
+6: left putamen (203)
+7: left pallidum (204)
+#8: brain-stem
+9: left hippocampus (205)
+10: left amygdala (206)
+11: left accumbens (207)
+15: right thalamus (208)
+16: right caudate (209)
+17: right putamen (210)
+18: right pallidum (211)
+19: right hippocampus (212)
+20: right amygdala (213)
+21: right accumbens (214)</p>
+<p>signal: a 2d numpy array, first dimension is Parcel and the second is TR</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.participation_coefficient">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">participation_coefficient</code><span class="sig-paren">(</span><em class="sig-param">G</em>, <em class="sig-param">module_partition</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#participation_coefficient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.participation_coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the participation coefficient of nodes of G with partition
+defined by module_partition.
+(Guimera et al. 2005).</p>
+<p>G : <code class="xref py py-class docutils literal notranslate"><span class="pre">networkx.Graph</span></code>
+module_partition : dict</p>
+<blockquote>
+<div><p>a dictionary mapping each community name to a list of nodes in G</p>
+</div></blockquote>
+<dl class="simple">
+<dt>dict</dt><dd><p>a dictionary mapping the nodes of G to their participation coefficient
+under the participation specified by module_partition.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.separate_epochs">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">separate_epochs</code><span class="sig-paren">(</span><em class="sig-param">activity_data</em>, <em class="sig-param">epoch_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#separate_epochs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.separate_epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>create data epoch by epoch;
+Separate data into conditions of interest specified in epoch_list</p>
+<dl class="simple">
+<dt>activity_data: list of 2D array in shape [nVoxels, nTRs]</dt><dd><p>the masked activity data organized in voxel*TR formats of all subjects</p>
+</dd>
+<dt>epoch_list: list of 3D array in shape [condition, nEpochs, nTRs]</dt><dd><p>specification of epochs and conditions
+assuming all subjects have the same number of epochs
+len(epoch_list) equals the number of subjects</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>raw_data: list of 2D array in shape [nParcels, timepoints (36*16)]</dt><dd><p>the data organized in epochs
+len(raw_data) equals n subjects * 6 conditions for each subject)</p>
+</dd>
+<dt>labels: list of 1D array</dt><dd><p>the condition labels of the epochs
+len(labels) labels equals the number of epochs</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.separate_epochs_per_condition">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">separate_epochs_per_condition</code><span class="sig-paren">(</span><em class="sig-param">raw_data</em>, <em class="sig-param">labels</em>, <em class="sig-param">condition_label</em>, <em class="sig-param">sub_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#separate_epochs_per_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.separate_epochs_per_condition" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function goes from res3984 into epochs of each condition. 
+Automatically assume that each epoch has 36 TRs (36 is hard-coded)</p>
+<p>raw_data: output from function _separate_epochs
+labels: second otput from function _separate_epochs
+condition_label: This is arbitrarily defined generating epoch files: 
+0: ‘divPerFacePerTone’, 
+1: ‘divPerFaceRetScene’, 
+2: ‘divRetScenePerTone’, 
+3: ‘singlePerFace’, 
+4: ‘singlePerTone’, 
+5: ‘singleRetScene’]
+sub_num: the number of subject</p>
+<dl class="simple">
+<dt>cond_epoch_ts: a list of 3d array. The length of the list is the number of subject, </dt><dd><p>Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.bgfc_analyses.separate_mvpa_epochs_per_condition">
+<code class="sig-prename descclassname">bgfc_kit.bgfc_analyses.</code><code class="sig-name descname">separate_mvpa_epochs_per_condition</code><span class="sig-paren">(</span><em class="sig-param">raw_data</em>, <em class="sig-param">labels</em>, <em class="sig-param">condition_label</em>, <em class="sig-param">sub_num</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/bgfc_analyses.html#separate_mvpa_epochs_per_condition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.bgfc_analyses.separate_mvpa_epochs_per_condition" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function goes from res3984 into epochs of each condition for activity-based analyese. 
+Each epoch includes 24 task TRs, shifted 3 TR accounting for hemodynamic delay. 
+The only difference between this function and the function above is 24 vs. 36, I make them 
+into 2 funtions to avoid having too many parameters to confuse myself in the future.</p>
+<p>raw_data: output from function _separate_epochs
+labels: second otput from function _separate_epochs
+condition_label: This is arbitrarily defined generating epoch files: 
+0: ‘divPerFacePerTone’, 
+1: ‘divPerFaceRetScene’, 
+2: ‘divRetScenePerTone’, 
+3: ‘singlePerFace’, 
+4: ‘singlePerTone’, 
+5: ‘singleRetScene’]
+sub_num: the number of subject</p>
+<dl class="simple">
+<dt>cond_epoch_ts: a list of 3d array. The length of the list is the number of subject, </dt><dd><p>Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bgfc_kit.fir_design_matrix">
+<span id="bgfc-kit-fir-design-matrix-module"></span><h2>bgfc_kit.fir_design_matrix module<a class="headerlink" href="#module-bgfc_kit.fir_design_matrix" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bgfc_kit.fir_design_matrix.generate_FIRdesignMat_template_toml">
+<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">generate_FIRdesignMat_template_toml</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#generate_FIRdesignMat_template_toml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.generate_FIRdesignMat_template_toml" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the configuration file for constructing FIR design matrix. You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. If you do not need to account for motion (i.e., running only ‘write_vanilla_FIRdesginMat’), you won’t need to fill out anything below ‘epoch_per_run’.
+PARAMETERS:
+- “conditions”: “A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.” 
+- “rep”: “The number of runs each condition is repeated”
+- “fir_regressors”: “The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block” 
+- “epoch_tr”: “The number of TR within each block/epoch” 
+- “run_leadingin_tr”: “The number of leading in TR” 
+- “run_leadingout_tr”: “The number of leading out TR” 
+- “epoch_per_run”: “The number of blocks/epochs within each run” 
+- “fmriprep_dir”: “Where fmriprep derivative is located”  
+- “spike_cutoff”: “the threshold to ignore a frame in the designmatrix” 
+- “prop_spike_cutoff”: “between 0 and 100, if the percentage of frames within a run has fd &gt; fd_cutoff is greater than prop_spike_cutoff, then remove the run”
+- “sub_id”: “subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the ‘sub-‘ prefix”
+- “order”: “this is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled. The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as’task-%s_run-%s’. For example, ‘task-divPerFacePerTone_run-2’”. 
+Important: The length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.fir_design_matrix.write_personalized_FIRdesginMat">
+<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">write_personalized_FIRdesginMat</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir</em>, <em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#write_personalized_FIRdesginMat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.write_personalized_FIRdesginMat" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function personlize FIR design matrix for each participant, aims to remove bad runs and bad frames from the FIR model. 
+Bad runs and bad frames were defined based on the framewise-displacement confound outputed by fMRIprep. The implementation here is that, 1) if more than prop_spike_cutoff (e.g., 5%) of frames with in a run has fd &gt; fd_cutoff (e.g., 0.5), then all regressors will be 0 for all TRs within this run, 2) if the run is good, then look at each frame, if the frame has fd &gt; spike_cutoff (e.g., 2), then all regressors of this frame and its preceding and following frames will be 0.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.fir_design_matrix.write_vanilla_FIRdesginMat">
+<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">write_vanilla_FIRdesginMat</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir</em>, <em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#write_vanilla_FIRdesginMat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.write_vanilla_FIRdesginMat" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes out the vanilla FIR design matrix to the output_dir. It also plots it out so you can eyeball the structure to make sure it looks correct.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bgfc_kit.preprocessing_pipeline">
+<span id="bgfc-kit-preprocessing-pipeline-module"></span><h2>bgfc_kit.preprocessing_pipeline module<a class="headerlink" href="#module-bgfc_kit.preprocessing_pipeline" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="bgfc_kit.preprocessing_pipeline.generate_postfMRIprep_pipeline_template_toml">
+<code class="sig-prename descclassname">bgfc_kit.preprocessing_pipeline.</code><code class="sig-name descname">generate_postfMRIprep_pipeline_template_toml</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/preprocessing_pipeline.html#generate_postfMRIprep_pipeline_template_toml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.preprocessing_pipeline.generate_postfMRIprep_pipeline_template_toml" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><p>This is the configuration file for post-fMRIprep preprocessing pipeline. This pipeline includes 1) smoothing and high-pass filterinng, 2) nuisance GLM using FSL FEAT implemented with nipype, 3) demean of each run (i.e., zscoring the whole run using the mean and sd of the ‘resting TRs’, which will be defined by your configuration file), and concatenating all runs into one long timeseries (the order of concatenation is crucial, it should be identical to your FIR design matrix, which will be defined by your configuration file), and 4) FIR glm. You need to specify all the parameters listed below in order to run the pipeline. The important output files are 1) evoked timeseries after regressing out confounds, which can be found sub-xx/before_FIR folder, 2) residual timeseries after regressing out stimulus evoked activities, which can be found sub-xx/FIR_residual folder, and 3) FIR regressor beta values, which can be found sub-xx/FIR_betas.</p>
+</div></blockquote>
+<p>PARAMETERS:
+- “sub_id”: subject id; This is placed at %s following ‘sub-‘; be consistent with fMRIprep naming convention: sub-%s_task-%s_space-%s_desc-preproc_bold.nii.gz
+- “task_id”: A list of tasks; This is placed at %s following ‘task-‘. IMPORTANT: make sure the order you provide is consistent with the design matrix
+- “space”: This be placed at %s following ‘space-‘ (e.g., MNI152NLin2009cAsym_res-2)
+- “base_dir”: where fMRIPrep derivative folder is at 
+- “output_dir”: output directory
+- “designMat_dir”: directory for the FIR design matrix
+- “runRest_tr”: list of TRs that are ‘rest TR’, will serve as baseline activity level
+- “fwhm”: smoothing kernel size
+- “hpcutoff”: high pass filter cut off, by setting default value being 50, high pass filter is 100
+- “nproc”: multithreading</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.preprocessing_pipeline.run_postfMRIprep_pipeline">
+<code class="sig-prename descclassname">bgfc_kit.preprocessing_pipeline.</code><code class="sig-name descname">run_postfMRIprep_pipeline</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/preprocessing_pipeline.html#run_postfMRIprep_pipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.preprocessing_pipeline.run_postfMRIprep_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function submit the python command to the current node
+Not to SLURM</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.preprocessing_pipeline.submit_postfMRIprep_pipeline_SLURM">
+<code class="sig-prename descclassname">bgfc_kit.preprocessing_pipeline.</code><code class="sig-name descname">submit_postfMRIprep_pipeline_SLURM</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir</em>, <em class="sig-param">shell_dir</em>, <em class="sig-param">account</em>, <em class="sig-param">partition</em>, <em class="sig-param">jobname</em>, <em class="sig-param">memory</em>, <em class="sig-param">time='1-00:00:00'</em>, <em class="sig-param">log='%x_%A_%a.log'</em>, <em class="sig-param">env='jupyterlab-tf-pyt-20211020'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/preprocessing_pipeline.html#submit_postfMRIprep_pipeline_SLURM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.preprocessing_pipeline.submit_postfMRIprep_pipeline_SLURM" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function first write out a shell script, then submit the python command to SLURM
+Parameters: 
+cfg_dir: the directory of the configuration file 
+shell_dir: where to write the shell script, including script’s name 
+account: the lab account (e.g., hulacon) 
+partition: the node partition (e.g., long, short, fat) 
+memory: the amount of memory (e.g., 100GB)</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bgfc_kit.structDict">
+<span id="bgfc-kit-structdict-module"></span><h2>bgfc_kit.structDict module<a class="headerlink" href="#module-bgfc_kit.structDict" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bgfc_kit.structDict.StructDict">
+<em class="property">class </em><code class="sig-prename descclassname">bgfc_kit.structDict.</code><code class="sig-name descname">StructDict</code><a class="reference internal" href="_modules/bgfc_kit/structDict.html#StructDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.structDict.StructDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Class that adds a structure type syntax to dictionaries,
+i.e. ‘dict.field’ will invoke dict[‘field’]</p>
+<dl class="method">
+<dt id="bgfc_kit.structDict.StructDict.copy">
+<code class="sig-name descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; a shallow copy of D<a class="reference internal" href="_modules/bgfc_kit/structDict.html#StructDict.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.structDict.StructDict.copy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.structDict.copy_toplevel">
+<code class="sig-prename descclassname">bgfc_kit.structDict.</code><code class="sig-name descname">copy_toplevel</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/structDict.html#copy_toplevel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.structDict.copy_toplevel" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bgfc_kit.structDict.recurseCreateStructDict">
+<code class="sig-prename descclassname">bgfc_kit.structDict.</code><code class="sig-name descname">recurseCreateStructDict</code><span class="sig-paren">(</span><em class="sig-param">data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/structDict.html#recurseCreateStructDict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.structDict.recurseCreateStructDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a recursive dictionary, i.e. a dictionary that has
+child dictionaries or lists of dictionaries,
+convert each child dictionary to a StructDict.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bgfc_kit">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bgfc_kit" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="modules.html" class="btn btn-neutral float-left" title="bgfc_kit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2023, Peeta Li
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
