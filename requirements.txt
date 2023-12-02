@@ -1,0 +1,13 @@
+sphinx
+sphinx-rtd-theme
+ghp-import 
+pytest
+toml 
+pandas 
+numpy 
+nilearn
+networkx
+plotnine
+scikit-learn
+matplotlib
+seaborn 
