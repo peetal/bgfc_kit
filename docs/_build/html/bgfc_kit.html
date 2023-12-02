@@ -416,35 +416,79 @@ sub_num: the number of subject</p>
 <span id="bgfc-kit-fir-design-matrix-module"></span><h2>bgfc_kit.fir_design_matrix module<a class="headerlink" href="#module-bgfc_kit.fir_design_matrix" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="bgfc_kit.fir_design_matrix.generate_FIRdesignMat_template_toml">
-<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">generate_FIRdesignMat_template_toml</code><span class="sig-paren">(</span><em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#generate_FIRdesignMat_template_toml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.generate_FIRdesignMat_template_toml" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the configuration file for constructing FIR design matrix. You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. If you do not need to account for motion (i.e., running only ‘write_vanilla_FIRdesginMat’), you won’t need to fill out anything below ‘epoch_per_run’.
-PARAMETERS:
-- “conditions”: “A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.” 
-- “rep”: “The number of runs each condition is repeated”
-- “fir_regressors”: “The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block” 
-- “epoch_tr”: “The number of TR within each block/epoch” 
-- “run_leadingin_tr”: “The number of leading in TR” 
-- “run_leadingout_tr”: “The number of leading out TR” 
-- “epoch_per_run”: “The number of blocks/epochs within each run” 
-- “fmriprep_dir”: “Where fmriprep derivative is located”  
-- “spike_cutoff”: “the threshold to ignore a frame in the designmatrix” 
-- “prop_spike_cutoff”: “between 0 and 100, if the percentage of frames within a run has fd &gt; fd_cutoff is greater than prop_spike_cutoff, then remove the run”
-- “sub_id”: “subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the ‘sub-‘ prefix”
-- “order”: “this is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled. The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as’task-%s_run-%s’. For example, ‘task-divPerFacePerTone_run-2’”. 
-Important: The length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr</p>
+<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">generate_FIRdesignMat_template_toml</code><span class="sig-paren">(</span><em class="sig-param">output_dir: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#generate_FIRdesignMat_template_toml"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.generate_FIRdesignMat_template_toml" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function generates the configuration file for constructing FIR design matrix at the specified output directory. You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. If you do not need to account for motion (i.e., running only ‘write_vanilla_FIRdesginMat’), you won’t need to fill out anything below ‘epoch_per_run’.</p>
+<dl class="simple">
+<dt>output_dir<span class="classifier">str</span></dt><dd><p>Where the template configuration file will be created at.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>conditions<span class="classifier"></span></dt><dd><p>A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.</p>
+</dd>
+<dt>rep<span class="classifier"></span></dt><dd><p>The number of runs each condition is repeated.</p>
+</dd>
+<dt>fir_regressors<span class="classifier"></span></dt><dd><p>The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block.</p>
+</dd>
+<dt>epoch_tr<span class="classifier"></span></dt><dd><p>The number of TR within each block/epoch.</p>
+</dd>
+<dt>run_leadingin_tr<span class="classifier"></span></dt><dd><p>The number of leading in TR.</p>
+</dd>
+<dt>run_leadingout_tr<span class="classifier"></span></dt><dd><p>The number of leading out TR.</p>
+</dd>
+<dt>epoch_per_run<span class="classifier"></span></dt><dd><p>The number of blocks/epochs within each run.</p>
+</dd>
+<dt>fmriprep_dir<span class="classifier"></span></dt><dd><p>Where fmriprep derivative is located.</p>
+</dd>
+<dt>spike_cutoff<span class="classifier"></span></dt><dd><p>The threshold to ignore a frame in the designmatrix.</p>
+</dd>
+<dt>prop_spike_cutoff<span class="classifier"></span></dt><dd><p>Between 0 and 100, if the percentage of frames within a run has fd &gt; fd_cutoff is greater than prop_spike_cutoff, then remove the run.</p>
+</dd>
+<dt>sub_id<span class="classifier"></span></dt><dd><p>Subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the ‘sub-‘ prefix.</p>
+</dd>
+<dt>order<span class="classifier"></span></dt><dd><p>This is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled. The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as’task-%s_run-%s’. For example, ‘task-divPerFacePerTone_run-2’.</p>
+</dd>
+</dl>
+<p>The length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="bgfc_kit.fir_design_matrix.write_personalized_FIRdesginMat">
-<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">write_personalized_FIRdesginMat</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir</em>, <em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#write_personalized_FIRdesginMat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.write_personalized_FIRdesginMat" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function personlize FIR design matrix for each participant, aims to remove bad runs and bad frames from the FIR model. 
-Bad runs and bad frames were defined based on the framewise-displacement confound outputed by fMRIprep. The implementation here is that, 1) if more than prop_spike_cutoff (e.g., 5%) of frames with in a run has fd &gt; fd_cutoff (e.g., 0.5), then all regressors will be 0 for all TRs within this run, 2) if the run is good, then look at each frame, if the frame has fd &gt; spike_cutoff (e.g., 2), then all regressors of this frame and its preceding and following frames will be 0.</p>
+<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">write_personalized_FIRdesginMat</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir: str</em>, <em class="sig-param">output_dir: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#write_personalized_FIRdesginMat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.write_personalized_FIRdesginMat" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function personlize FIR design matrix for each participant, aims to remove bad runs and bad frames from the FIR model. Bad runs and bad frames were defined based on the framewise-displacement confound outputed by fMRIprep. The implementation here is that, 
+1) if more than prop_spike_cutoff (e.g., 5%) of frames with in a run has fd &gt; fd_cutoff (e.g., 0.5), then all regressors will be 0 for all TRs within this run, 
+2) if the run is good, then look at each frame, if the frame has fd &gt; spike_cutoff (e.g., 2), then all regressors of this frame and its preceding and following frames will be 0.</p>
+<dl class="simple">
+<dt>cfg_dir: </dt><dd><p>The path for the toml configuration file.</p>
+</dd>
+<dt>output_dir: </dt><dd><p>Where the text file and heatmap will be created at.</p>
+</dd>
+</dl>
+<p>fir_design_matrix.txt: finite impulse response (FIR) model design matrix for a specific subject, accounting for motion.
+fir_design_heatmap.png: heatmap of the design matrix.</p>
+<p>This function generates FIR design matrix customized for each subject, removing spikes and bad runs (due to motion).</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="bgfc_kit.fir_design_matrix.write_vanilla_FIRdesginMat">
-<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">write_vanilla_FIRdesginMat</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir</em>, <em class="sig-param">output_dir</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#write_vanilla_FIRdesginMat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.write_vanilla_FIRdesginMat" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function writes out the vanilla FIR design matrix to the output_dir. It also plots it out so you can eyeball the structure to make sure it looks correct.</p>
+<code class="sig-prename descclassname">bgfc_kit.fir_design_matrix.</code><code class="sig-name descname">write_vanilla_FIRdesginMat</code><span class="sig-paren">(</span><em class="sig-param">cfg_dir: str</em>, <em class="sig-param">output_dir: str</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/bgfc_kit/fir_design_matrix.html#write_vanilla_FIRdesginMat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bgfc_kit.fir_design_matrix.write_vanilla_FIRdesginMat" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes out the vanilla FIR design matrix to the output_dir. It also plots it out so you can eyeball the structure to make sure it looks correct. This function assumes the functional scans were ordered in the same way across the subjects even though they were run in different orders. This can easily be achieved by naming your EPI runs during the R&amp;D session. As a result, this function generates the design matrix that works for all participants.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cfg_dir</strong> – str 
+The path for the toml configuration file.</p></li>
+<li><p><strong>output_dir</strong> – str
+Where the text file and heatmap will be created at.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Notes</dt>
+<dd class="field-odd"><p>This function does not account for spikes or bad runs, thus being ‘vanilla’.
+This function writes out fir_design_matrix.txt, which is finite impulse response (FIR) model design matrix, and fir_design_heatmap.png, which is the heatmap of the design matrix.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

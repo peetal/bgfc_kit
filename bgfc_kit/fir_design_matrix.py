@@ -8,23 +8,44 @@ from itertools import product
 from .structDict import recurseCreateStructDict
 
 
-def generate_FIRdesignMat_template_toml(output_dir): 
-    """
-This is the configuration file for constructing FIR design matrix. You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. If you do not need to account for motion (i.e., running only 'write_vanilla_FIRdesginMat'), you won't need to fill out anything below 'epoch_per_run'.
-PARAMETERS:
-- "conditions": "A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs." 
-- "rep": "The number of runs each condition is repeated"
-- "fir_regressors": "The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block" 
-- "epoch_tr": "The number of TR within each block/epoch" 
-- "run_leadingin_tr": "The number of leading in TR" 
-- "run_leadingout_tr": "The number of leading out TR" 
-- "epoch_per_run": "The number of blocks/epochs within each run" 
-- "fmriprep_dir": "Where fmriprep derivative is located"  
-- "spike_cutoff": "the threshold to ignore a frame in the designmatrix" 
-- "prop_spike_cutoff": "between 0 and 100, if the percentage of frames within a run has fd > fd_cutoff is greater than prop_spike_cutoff, then remove the run"
-- "sub_id": "subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the 'sub-' prefix"
-- "order": "this is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled. The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as'task-%s_run-%s'. For example, 'task-divPerFacePerTone_run-2'". 
-Important: The length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr
+def generate_FIRdesignMat_template_toml(output_dir:str): 
+    """This function generates the configuration file for constructing FIR design matrix at the specified output directory. You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. If you do not need to account for motion (i.e., running only 'write_vanilla_FIRdesginMat'), you won't need to fill out anything below 'epoch_per_run'.
+    
+    Function parameters
+    --------------------
+    output_dir : str
+        Where the template configuration file will be created at. 
+
+    Configuration parameters
+    ------------------------
+    conditions : 
+        A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.
+    rep : 
+        The number of runs each condition is repeated.
+    fir_regressors : 
+        The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block. 
+    epoch_tr : 
+        The number of TR within each block/epoch.
+    run_leadingin_tr : 
+        The number of leading in TR.
+    run_leadingout_tr : 
+        The number of leading out TR.
+    epoch_per_run : 
+        The number of blocks/epochs within each run.
+    fmriprep_dir : 
+        Where fmriprep derivative is located.
+    spike_cutoff : 
+        The threshold to ignore a frame in the designmatrix.
+    prop_spike_cutoff : 
+        Between 0 and 100, if the percentage of frames within a run has fd > fd_cutoff is greater than prop_spike_cutoff, then remove the run.
+    sub_id : 
+        Subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the 'sub-' prefix. 
+    order : 
+        This is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled. The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as'task-%s_run-%s'. For example, 'task-divPerFacePerTone_run-2'. 
+    
+    Notes
+    -----
+    The length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr
     """
     data = {
         
@@ -67,16 +88,20 @@ Important: The length of each run should be run_leadingin_tr + epoch_per_run*epo
     with open(os.path.join(output_dir,"FIRdesignMat_conf.toml"), "w") as toml_file:
         toml.dump(data, toml_file)
         
-def _generate_vanilla_designMat(cfg_dir): 
+def _generate_vanilla_designMat(cfg_dir:str): 
     
-    """
-    This function generates the vanilla design matrix for all subjects, not accounting for motion or bad runs. This function is specifically aiming for block designed, FIR design matrix. This is for all subjects since it requires the fMRI runs to be concatenated in the same order across all subjects, although they were run in different order in the scanner. Moreover, the runs should be identical to each other and all blocks within in a run are of the same condition. Make sure to name the runs by the conditions during the R&D session, so later you will know the condition of each scan, which makes everything a lot easier. 
+    """This function generates the vanilla design matrix for all subjects, not accounting for motion or bad runs. This function is specifically aiming for block designed, FIR design matrix. This is for all subjects since it requires the fMRI runs to be concatenated in the same order across all subjects, although they were run in different order in the scanner. Moreover, the runs should be identical to each other and all blocks within in a run are of the same condition. Make sure to name the runs by the conditions during the R&D session, so later you will know the condition of each scan, which makes everything a lot easier. 
     Each FIR regressor models a specific "type" of TR. For example, a FIR regressor may model the first TR of every block/epoch of condition1. You may chose to model all TR within a block, or chose to model a subset of TRs. For example, if a block/epoch has 40 TRs in total, you can chose to model the first 36 TRs thats totally fine. As a result, you end up having (#_of_conditions * #_of TRs_modeled) number of regressors. 
     The final design matrix has the shape (total_#_of_TR_all_scans * #_of_regressors). 
-    PARAMETER: cfg_dir: the path for the toml configuration file 
-    OUTPUT:
-    - full_fir: numpy array 
-    - all_regressors: list of regressor names. 
+
+    Parameter:
+    ----------
+    cfg_dir: the path for the toml configuration file. 
+    
+    Outputs:
+    --------
+    full_fir: numpy array 
+    all_regressors: list of regressor names. 
     """
     # load configuration file 
     with open(cfg_dir, "r") as toml_file:
@@ -105,10 +130,20 @@ def _generate_vanilla_designMat(cfg_dir):
     return full_fir, all_regressors
     
 
-def write_vanilla_FIRdesginMat(cfg_dir, output_dir): 
+def write_vanilla_FIRdesginMat(cfg_dir:str, output_dir:str): 
 
-    """
-    This function writes out the vanilla FIR design matrix to the output_dir. It also plots it out so you can eyeball the structure to make sure it looks correct. 
+    """This function writes out the vanilla FIR design matrix to the output_dir. It also plots it out so you can eyeball the structure to make sure it looks correct. This function assumes the functional scans were ordered in the same way across the subjects even though they were run in different orders. This can easily be achieved by naming your EPI runs during the R&D session. As a result, this function generates the design matrix that works for all participants.
+    
+    :param cfg_dir: str 
+        The path for the toml configuration file. 
+    :param output_dir: str
+        Where the text file and heatmap will be created at. 
+    
+    :return: None
+
+    :notes:
+        This function does not account for spikes or bad runs, thus being 'vanilla'.
+        This function writes out fir_design_matrix.txt, which is finite impulse response (FIR) model design matrix, and fir_design_heatmap.png, which is the heatmap of the design matrix. 
     """
     # generate vanilla fir matrix
     vanilla_fir, all_regressors = _generate_vanilla_designMat(cfg_dir)
@@ -123,11 +158,27 @@ def write_vanilla_FIRdesginMat(cfg_dir, output_dir):
     fig.savefig(os.path.join(output_dir,'fir_design_heatmap.png'))
 
 
-def write_personalized_FIRdesginMat(cfg_dir, output_dir): 
+def write_personalized_FIRdesginMat(cfg_dir:str, output_dir:str): 
     
-    """
-    This function personlize FIR design matrix for each participant, aims to remove bad runs and bad frames from the FIR model. 
-    Bad runs and bad frames were defined based on the framewise-displacement confound outputed by fMRIprep. The implementation here is that, 1) if more than prop_spike_cutoff (e.g., 5%) of frames with in a run has fd > fd_cutoff (e.g., 0.5), then all regressors will be 0 for all TRs within this run, 2) if the run is good, then look at each frame, if the frame has fd > spike_cutoff (e.g., 2), then all regressors of this frame and its preceding and following frames will be 0. 
+    """This function personlize FIR design matrix for each participant, aims to remove bad runs and bad frames from the FIR model. Bad runs and bad frames were defined based on the framewise-displacement confound outputed by fMRIprep. The implementation here is that, 
+    1) if more than prop_spike_cutoff (e.g., 5%) of frames with in a run has fd > fd_cutoff (e.g., 0.5), then all regressors will be 0 for all TRs within this run, 
+    2) if the run is good, then look at each frame, if the frame has fd > spike_cutoff (e.g., 2), then all regressors of this frame and its preceding and following frames will be 0. 
+    
+    Parameter:
+    ----------
+    cfg_dir: 
+        The path for the toml configuration file. 
+    output_dir: 
+        Where the text file and heatmap will be created at. 
+    
+    Yield:
+    -------
+    fir_design_matrix.txt: finite impulse response (FIR) model design matrix for a specific subject, accounting for motion.
+    fir_design_heatmap.png: heatmap of the design matrix. 
+
+    Note: 
+    ------
+    This function generates FIR design matrix customized for each subject, removing spikes and bad runs (due to motion).
     """
     # -----------------------
     # load configuration file and check required field from the configuration file 
