@@ -164,21 +164,16 @@ def write_personalized_FIRdesginMat(cfg_dir:str, output_dir:str):
     1) if more than prop_spike_cutoff (e.g., 5%) of frames with in a run has fd > fd_cutoff (e.g., 0.5), then all regressors will be 0 for all TRs within this run, 
     2) if the run is good, then look at each frame, if the frame has fd > spike_cutoff (e.g., 2), then all regressors of this frame and its preceding and following frames will be 0. 
     
-    Parameter:
-    ----------
-    cfg_dir: 
+    :param cfg_dir: str 
         The path for the toml configuration file. 
-    output_dir: 
+    :param output_dir: str
         Where the text file and heatmap will be created at. 
-    
-    Yield:
-    -------
-    fir_design_matrix.txt: finite impulse response (FIR) model design matrix for a specific subject, accounting for motion.
-    fir_design_heatmap.png: heatmap of the design matrix. 
 
-    Note: 
-    ------
-    This function generates FIR design matrix customized for each subject, removing spikes and bad runs (due to motion).
+    :return: None
+
+    :notes:
+        This function generates FIR design matrix customized for each subject, removing spikes and bad runs (due to motion).
+        For the specified subject, this function writes out fir_design_matrix.txt, which is finite impulse response (FIR) model design matrix, and fir_design_heatmap.png, which is the heatmap of the design matrix. 
     """
     # -----------------------
     # load configuration file and check required field from the configuration file 
