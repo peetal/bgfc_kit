@@ -9,43 +9,45 @@ from .structDict import recurseCreateStructDict
 
 
 def generate_FIRdesignMat_template_toml(output_dir:str): 
-    """This function generates the configuration file for constructing FIR design matrix at the specified output directory. You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. If you do not need to account for motion (i.e., running only 'write_vanilla_FIRdesginMat'), you won't need to fill out anything below 'epoch_per_run'.
+    """This function generates the configuration file for constructing FIR design matrix at the specified output directory. 
+    You need to specify all the parameters listed below in order to build the FIR design matrix for your need. You can refer to the comments below for more information regarding each parameter. 
+    If you do not need to account for motion (i.e., running only 'write_vanilla_FIRdesginMat'), you won't need to fill out anything below 'epoch_per_run'.
     
-    Function parameters
-    --------------------
-    output_dir : str
+    :param output_dir: str 
         Where the template configuration file will be created at. 
 
-    Configuration parameters
-    ------------------------
-    conditions : 
-        A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.
-    rep : 
-        The number of runs each condition is repeated.
-    fir_regressors : 
-        The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block. 
-    epoch_tr : 
-        The number of TR within each block/epoch.
-    run_leadingin_tr : 
-        The number of leading in TR.
-    run_leadingout_tr : 
-        The number of leading out TR.
-    epoch_per_run : 
-        The number of blocks/epochs within each run.
-    fmriprep_dir : 
-        Where fmriprep derivative is located.
-    spike_cutoff : 
-        The threshold to ignore a frame in the designmatrix.
-    prop_spike_cutoff : 
-        Between 0 and 100, if the percentage of frames within a run has fd > fd_cutoff is greater than prop_spike_cutoff, then remove the run.
-    sub_id : 
-        Subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the 'sub-' prefix. 
-    order : 
-        This is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled. The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as'task-%s_run-%s'. For example, 'task-divPerFacePerTone_run-2'. 
+    :return: None
+
+    :notes 
+        Below are the details for all the configuration parameters included in the template config file. 
+        You can find all these information within the configuration file as well. 
+        It is also worthnoting that the length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr
     
-    Notes
-    -----
-    The length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr
+    :notes conditions 
+        A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.
+    :notes rep 
+        The number of runs each condition is repeated.
+    :notes fir_regressors
+        The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block. 
+    :notes epoch_tr
+        The number of TR within each block/epoch.
+    :notes run_leadingin_tr 
+        The number of leading in TR.
+    :notes run_leadingout_tr
+        The number of leading out TR.
+    :notes epoch_per_run
+        The number of blocks/epochs within each run.
+    :notes fmriprep_dir
+        Where fmriprep derivative is located.
+    :notes spike_cutoff
+        The threshold to ignore a frame in the designmatrix.
+    :notes prop_spike_cutoff
+        Between 0 and 100, if the percentage of frames within a run has fd > fd_cutoff is greater than prop_spike_cutoff, then remove the run.
+    :notes sub_id
+        Subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the 'sub-' prefix. 
+    :notes order
+        This is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled.
+        The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as'task-%s_run-%s'. For example, 'task-divPerFacePerTone_run-2'. 
     """
     data = {
         
@@ -162,7 +164,7 @@ def write_personalized_FIRdesginMat(cfg_dir:str, output_dir:str):
     
     """This function personlize FIR design matrix for each participant, aims to remove bad runs and bad frames from the FIR model. Bad runs and bad frames were defined based on the framewise-displacement confound outputed by fMRIprep. The implementation here is that, 
     1) if more than prop_spike_cutoff (e.g., 5%) of frames with in a run has fd > fd_cutoff (e.g., 0.5), then all regressors will be 0 for all TRs within this run, 
-    2) if the run is good, then look at each frame, if the frame has fd > spike_cutoff (e.g., 2), then all regressors of this frame and its preceding and following frames will be 0. 
+    2) if the run is good, then look at each frame, if the frame has fd > spike_cutoff (e.g., 2mm), then all regressors of this frame and its preceding and following frames will be 0. 
     
     :param cfg_dir: str 
         The path for the toml configuration file. 
