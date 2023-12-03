@@ -11,4 +11,5 @@ networkx
 plotnine
 matplotlib
 seaborn
-
+nipype==1.8.1
+niflow-nipype1-workflows==0.0.5
