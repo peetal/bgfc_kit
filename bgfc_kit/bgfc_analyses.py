@@ -13,27 +13,35 @@ from sklearn.linear_model import LogisticRegression,LinearRegression
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
+from subprocess import call 
 
 def load_sub_data(base_dir:str, sub:int, subcortical:False) -> np.ndarray:
     
     """
     This function takes in the subject ID and then parcellate residual activity data. 
     
-    Files:
-    ------
-    input_data: a string pointing to the 4D timeseries niimg-like object (most likely to be the residual activity data). 
-    atlas: a string pointing to the 3D atlas (Schaefer or HO). 
-    mask: a string pointing to the 3D subject functional mask. 
-    subcortical: if true, then include subcortical parcellation. 
+    Parameters
+    ----------
+    input_data: 
+        A string pointing to the 4D timeseries niimg-like object (most likely to be the residual activity data). 
+    atlas: 
+        A string pointing to the 3D atlas (Schaefer or HO). 
+    mask: 
+        A string pointing to the 3D subject functional mask. 
+    subcortical: 
+        If true, then include subcortical parcellation. 
     
-    The HOSPA atlas description is here: https://neurovault.org/images/1707/ 
-    But not all 21 parcels are worth looking at (e.g., 2 is cerebral cortex, 1 is while matter)
-    
+    Returns
+    --------
+    signal: a 2d numpy array, first dimension is Parcel and the second is TR.
+
+    Notes
+    -----
+    The HOSPA atlas description is here: https://neurovault.org/images/1707/, But not all 21 parcels are worth looking at (e.g., 2 is cerebral cortex, 1 is while matter)
     4: left thalamus (201)
     5: left caudate (202)
     6: left putamen (203)
     7: left pallidum (204)
-    #8: brain-stem
     9: left hippocampus (205)
     10: left amygdala (206)
     11: left accumbens (207)
@@ -44,10 +52,6 @@ def load_sub_data(base_dir:str, sub:int, subcortical:False) -> np.ndarray:
     19: right hippocampus (212)
     20: right amygdala (213)
     21: right accumbens (214)
-    
-    Returns
-    --------
-    signal: a 2d numpy array, first dimension is Parcel and the second is TR 
     """
     
     input_data = os.path.join(base_dir, f"sub-{sub:03d}", "FIR_residual", f"sub-{sub:03d}_res3984.nii.gz")
@@ -64,72 +68,24 @@ def load_sub_data(base_dir:str, sub:int, subcortical:False) -> np.ndarray:
     # make sure to transpose the signal, so that the first dimension is parcel (instead of TR). 
     return signal.T 
 
-def load_sub_evoked_data(base_dir:str, sub:int, subcortical:False) -> np.ndarray:
-    
-    """
-    This function takes in the subject ID and then parcellate residual activity data. 
-    
-    Files:
-    ------
-    input_data: a string pointing to the 4D timeseries niimg-like object (most likely to be the residual activity data). 
-    atlas: a string pointing to the 3D atlas (Schaefer or HO). 
-    mask: a string pointing to the 3D subject functional mask. 
-    subcortical: if true, then include subcortical parcellation. 
-    
-    The HOSPA atlas description is here: https://neurovault.org/images/1707/ 
-    But not all 21 parcels are worth looking at (e.g., 2 is cerebral cortex, 1 is while matter)
-    
-    4: left thalamus (201)
-    5: left caudate (202)
-    6: left putamen (203)
-    7: left pallidum (204)
-    #8: brain-stem
-    9: left hippocampus (205)
-    10: left amygdala (206)
-    11: left accumbens (207)
-    15: right thalamus (208)
-    16: right caudate (209)
-    17: right putamen (210)
-    18: right pallidum (211)
-    19: right hippocampus (212)
-    20: right amygdala (213)
-    21: right accumbens (214)
-    
-    
-    
-    Returns
-    --------
-    signal: a 2d numpy array, first dimension is Parcel and the second is TR 
-    """
-    
-    input_data = os.path.join(base_dir, f"sub-{sub:03d}", "before_FIR", f"sub-{sub:03d}_nuisanceRES_CONCAT.nii.gz")
-    label = os.path.join(base_dir, f"sub-{sub:03d}", "transformed_atlas", f"sub-{sub:03d}_schaefer200_T1W.nii.gz")
-    label_sub = os.path.join(base_dir, f"sub-{sub:03d}", "transformed_atlas", f"sub-{sub:03d}_HOSPA_T1W.nii.gz")
-    mask = os.path.join(base_dir, f"sub-{sub:03d}", "task_shared_mask", f"sub-{sub:03d}_task-shared_brain-mask.nii.gz")
-
-    signal, _ = img_to_signals_labels(input_data, label, mask)
-    if subcortical: 
-        signal_sub, _ = img_to_signals_labels(input_data, label_sub, mask)
-        signal_sub = signal_sub[:, [3,4,5,6,8,9,10,14,15,16,17,18,19,20]]
-        signal = np.concatenate((signal, signal_sub), axis = 1)
-    
-    # make sure to transpose the signal, so that the first dimension is parcel (instead of TR). 
-    return signal.T 
-
-
-
 def detect_bad_frame(sub, signal, run_prop=5, spike=2): 
     
     """
-    This function aims to detect bad runs and bad frames 
+    This function aims to detect bad runs and bad frames, then remove them from the timeseries. 
     
-    Parameters: 
-    sub: subject id (e.g., 1, 2, 14) 
-    signal: the output of load_sub_data, the shape is nparcel, ts (200,3984)
-    run_prop: the proportion of frames with FD > 0.5 within each run, exceeding which removes the run (5%)
-    spike: the spike cutoff (2mm)
+    Parameters 
+    ----------
+    sub: 
+        Subject id, with out the 'sub-' prefix (e.g., 1, 2, 14).
+    signal: 
+        The output of load_sub_data, the shape is nparcel, ts (200,3984).
+    run_prop: 
+        The proportion of frames with FD > 0.5 within each run, exceeding which removes the run (5%).
+    spike: 
+        The spike cutoff, meaning that if a frame has FD greater than cutoff (2mm), then it would be treated as a spike. 
     
-    Return: 
+    Return 
+    -------
     ts: signal without bad frames, the shape is still 200, 3984, but bad frames are np.nan across all 200 parcels 
     """
     # the order that the 12 runs were being concatenated 
@@ -194,20 +150,20 @@ def separate_epochs(activity_data, epoch_list):
 
     Parameters
     ----------
-    activity_data: list of 2D array in shape [nVoxels, nTRs]
-        the masked activity data organized in voxel*TR formats of all subjects
-    epoch_list: list of 3D array in shape [condition, nEpochs, nTRs]
-        specification of epochs and conditions
-        assuming all subjects have the same number of epochs
-        len(epoch_list) equals the number of subjects
+    activity_data: 
+        List of 2D array in shape [nVoxels, nTRs]
+        The masked activity data organized in voxel*TR formats of all subjects.
+    epoch_list: 
+        List of 3D array in shape [condition, nEpochs, nTRs]
+        Specification of epochs and conditions, assuming all subjects have the same number of epoch. len(epoch_list) equals the number of subjects.
 
     Returns
     -------
-    raw_data: list of 2D array in shape [nParcels, timepoints (36*16)]
-        the data organized in epochs
-        len(raw_data) equals n subjects * 6 conditions for each subject)
-    labels: list of 1D array
-        the condition labels of the epochs
+    raw_data: 
+        List of 2D array in shape [nParcels, timepoints (36*16)]
+        The data organized in epochs. len(raw_data) equals n subjects * 6 conditions for each subject)
+    labels:
+        List of 1D array, which is the condition labels of the epochs
         len(labels) labels equals the number of epochs 
     """
     raw_data = []
@@ -256,23 +212,22 @@ def separate_epochs_per_condition(raw_data, labels, condition_label, sub_num):
     This function goes from res3984 into epochs of each condition. 
     Automatically assume that each epoch has 36 TRs (36 is hard-coded)
     
-    Parameters
+    Parameter
     ----------
-    raw_data: output from function _separate_epochs
-    labels: second otput from function _separate_epochs
-    condition_label: This is arbitrarily defined generating epoch files: 
-    0: 'divPerFacePerTone', 
-    1: 'divPerFaceRetScene', 
-    2: 'divRetScenePerTone', 
-    3: 'singlePerFace', 
-    4: 'singlePerTone', 
-    5: 'singleRetScene']
-    sub_num: the number of subject
+    raw_data: 
+        Output from function `separate_epochs`
+    labels: 
+        Second otput from function `separate_epochs`
+    condition_label: 
+        This is arbitrarily defined generating epoch files: 
+    sub_num: 
+        The number of subject
     
     Return
     ------
-    cond_epoch_ts: a list of 3d array. The length of the list is the number of subject, 
-                   Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)
+    cond_epoch_ts: 
+        a list of 3d array. 
+        The length of the list is the number of subject. Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)
     
     """
     cond_raw_data = [raw_data[cond] for cond in np.where(np.array(labels) == condition_label)[0].tolist()] 
@@ -292,22 +247,20 @@ def separate_mvpa_epochs_per_condition(raw_data, labels, condition_label, sub_nu
     
     Parameters
     ----------
-    raw_data: output from function _separate_epochs
-    labels: second otput from function _separate_epochs
-    condition_label: This is arbitrarily defined generating epoch files: 
-    0: 'divPerFacePerTone', 
-    1: 'divPerFaceRetScene', 
-    2: 'divRetScenePerTone', 
-    3: 'singlePerFace', 
-    4: 'singlePerTone', 
-    5: 'singleRetScene']
-    sub_num: the number of subject
+    raw_data: 
+        Output from function `separate_epochs`
+    labels: 
+        Second otput from function `separate_epochs`
+    condition_label: 
+        This is arbitrarily defined generating epoch files: 
+    sub_num: 
+        The number of subject
     
     Return
     ------
-    cond_epoch_ts: a list of 3d array. The length of the list is the number of subject, 
-                   Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)
-    
+    cond_epoch_ts: 
+        a list of 3d array. 
+        The length of the list is the number of subject. Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)
     """
     
     cond_raw_data = [raw_data[cond] for cond in np.where(np.array(labels) == condition_label)[0].tolist()] 
@@ -322,15 +275,16 @@ def compute_sub_cond_connectome_ztrans(epoch_data:np.ndarray):
     This function computes the connectome for each epoch, 
     and then AVERAGES across all peochs of the same condition 
     
-    Parameters: 
+    Parameters
     -----------
     epoch_data: A list of 2d array. The length equals the number of participant. 
                 Each array is of the shape 16epoch, 200parcels, 36TR/epoch
                 
 
-    Returns: 
-    --------
-    A generator of 3d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub
+    Yields
+    ------
+    sub_cond_connectome_ztrans: 
+        A generator of 3d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub
     """
     
     # basic information
