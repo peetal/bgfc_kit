@@ -23,31 +23,31 @@ def generate_FIRdesignMat_template_toml(output_dir:str):
         You can find all these information within the configuration file as well. 
         It is also worthnoting that the length of each run should be run_leadingin_tr + epoch_per_run*epoch_tr + run_leadingout_tr
     
-    :notes conditions:
-        A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.
-    :notes rep: 
-        The number of runs each condition is repeated.
-    :notes fir_regressors:
-        The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block. 
-    :notes epoch_tr:
-        The number of TR within each block/epoch.
-    :notes run_leadingin_tr: 
-        The number of leading in TR.
-    :notes run_leadingout_tr:
-        The number of leading out TR.
-    :notes epoch_per_run:
-        The number of blocks/epochs within each run.
-    :notes fmriprep_dir:
-        Where fmriprep derivative is located.
-    :notes spike_cutoff:
-        The threshold to ignore a frame in the designmatrix.
-    :notes prop_spike_cutoff:
-        Between 0 and 100, if the percentage of frames within a run has fd > fd_cutoff is greater than prop_spike_cutoff, then remove the run.
-    :notes sub_id:
-        Subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the 'sub-' prefix. 
-    :notes order:
-        This is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled.
-        The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as'task-%s_run-%s'. For example, 'task-divPerFacePerTone_run-2'. 
+        - conditions:
+            A list of conditions; The order should be IDENTICAL to how they will be concatenated when running the GLMs.
+        - rep: 
+            The number of runs each condition is repeated.
+        - fir_regressors:
+            The name of the regressors (e.g., A TR within a block is usually one of the 3 components: instruction, task, and IBI), the names are only for clarity. The regressors do not need to cover the entire block. For example, you can only modle the first 36 TRs for each 40 TR block. 
+        - epoch_tr:
+            The number of TR within each block/epoch.
+        - run_leadingin_tr: 
+            The number of leading in TR.
+        - run_leadingout_tr:
+            The number of leading out TR.
+        - epoch_per_run:
+            The number of blocks/epochs within each run.
+        - fmriprep_dir:
+            Where fmriprep derivative is located.
+        - spike_cutoff:
+            The threshold to ignore a frame in the designmatrix.
+        - prop_spike_cutoff:
+            Between 0 and 100, if the percentage of frames within a run has fd > fd_cutoff is greater than prop_spike_cutoff, then remove the run.
+        - sub_id:
+            Subject id, naming convention should follow how the subject folder is named in the fMRIprep derivative folder, do not need to include the 'sub-' prefix. 
+        - order:
+            This is a dictionary, with keys being the name of the run and values being its order. This is necessary to locate all the confound files in the derivative folder and to sort them in the same order as they will be concatenated and modeled.
+            The name of a fMRIprep output confound file is sub-%s_task-%s_run-%s_desc-preproc_bold.nii, the keys here need to be specified as'task-%s_run-%s'. For example, 'task-divPerFacePerTone_run-2'. 
     """
     data = {
         
