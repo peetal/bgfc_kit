@@ -12,4 +12,4 @@ scikit-learn
 matplotlib==3.7.0
 seaborn==0.12.1
 nipype==1.8.1
-niflow-nipype1-workflows==0.05
+niflow-nipype1-workflows==0.0.5
