@@ -1,4 +1,4 @@
-from .structDict import recurseCreateStructDict
+#from .structDict import recurseCreateStructDict
 from .fir_design_matrix import (
     generate_FIRdesignMat_template_toml,
     write_vanilla_FIRdesginMat,
