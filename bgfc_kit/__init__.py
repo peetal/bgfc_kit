@@ -11,7 +11,6 @@ from .preprocessing_pipeline import (
 )
 from .bgfc_analyses import (
     load_sub_data,
-    load_sub_evoked_data,
     detect_bad_frame,
     separate_epochs,
     separate_epochs_per_condition,
