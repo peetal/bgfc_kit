@@ -1,0 +1,858 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bgfc_kit.bgfc_analyses &mdash; BGFCkit Documentation 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BGFCkit Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">bgfc_kit</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BGFCkit Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bgfc_kit.bgfc_analyses</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bgfc_kit.bgfc_analyses</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span> 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span>
+<span class="kn">from</span> <span class="nn">nilearn</span> <span class="kn">import</span> <span class="n">image</span>
+<span class="kn">from</span> <span class="nn">nilearn.regions</span> <span class="kn">import</span> <span class="n">img_to_signals_labels</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">numpy.ma</span> <span class="k">as</span> <span class="nn">ma</span>
+<span class="kn">from</span> <span class="nn">plotnine</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">random</span> 
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span> 
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span><span class="p">,</span> <span class="n">SVR</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span><span class="p">,</span><span class="n">LinearRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+
+<div class="viewcode-block" id="load_sub_data"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.load_sub_data">[docs]</a><span class="k">def</span> <span class="nf">load_sub_data</span><span class="p">(</span><span class="n">base_dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">sub</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">subcortical</span><span class="p">:</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function takes in the subject ID and then parcellate residual activity data. </span>
+<span class="sd">    </span>
+<span class="sd">    Files:</span>
+<span class="sd">    ------</span>
+<span class="sd">    input_data: a string pointing to the 4D timeseries niimg-like object (most likely to be the residual activity data). </span>
+<span class="sd">    atlas: a string pointing to the 3D atlas (Schaefer or HO). </span>
+<span class="sd">    mask: a string pointing to the 3D subject functional mask. </span>
+<span class="sd">    subcortical: if true, then include subcortical parcellation. </span>
+<span class="sd">    </span>
+<span class="sd">    The HOSPA atlas description is here: https://neurovault.org/images/1707/ </span>
+<span class="sd">    But not all 21 parcels are worth looking at (e.g., 2 is cerebral cortex, 1 is while matter)</span>
+<span class="sd">    </span>
+<span class="sd">    4: left thalamus (201)</span>
+<span class="sd">    5: left caudate (202)</span>
+<span class="sd">    6: left putamen (203)</span>
+<span class="sd">    7: left pallidum (204)</span>
+<span class="sd">    #8: brain-stem</span>
+<span class="sd">    9: left hippocampus (205)</span>
+<span class="sd">    10: left amygdala (206)</span>
+<span class="sd">    11: left accumbens (207)</span>
+<span class="sd">    15: right thalamus (208)</span>
+<span class="sd">    16: right caudate (209)</span>
+<span class="sd">    17: right putamen (210)</span>
+<span class="sd">    18: right pallidum (211)</span>
+<span class="sd">    19: right hippocampus (212)</span>
+<span class="sd">    20: right amygdala (213)</span>
+<span class="sd">    21: right accumbens (214)</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    signal: a 2d numpy array, first dimension is Parcel and the second is TR </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">input_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;FIR_residual&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_res3984.nii.gz&quot;</span><span class="p">)</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;transformed_atlas&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_schaefer200_T1W.nii.gz&quot;</span><span class="p">)</span>
+    <span class="n">label_sub</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;transformed_atlas&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_HOSPA_T1W.nii.gz&quot;</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;task_shared_mask&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_task-shared_brain-mask.nii.gz&quot;</span><span class="p">)</span>
+
+    <span class="n">signal</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">img_to_signals_labels</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">subcortical</span><span class="p">:</span> 
+        <span class="n">signal_sub</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">img_to_signals_labels</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">label_sub</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+        <span class="n">signal_sub</span> <span class="o">=</span> <span class="n">signal_sub</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">]]</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">signal</span><span class="p">,</span> <span class="n">signal_sub</span><span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># make sure to transpose the signal, so that the first dimension is parcel (instead of TR). </span>
+    <span class="k">return</span> <span class="n">signal</span><span class="o">.</span><span class="n">T</span> </div>
+
+<div class="viewcode-block" id="load_sub_evoked_data"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.load_sub_evoked_data">[docs]</a><span class="k">def</span> <span class="nf">load_sub_evoked_data</span><span class="p">(</span><span class="n">base_dir</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="n">sub</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span> <span class="n">subcortical</span><span class="p">:</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function takes in the subject ID and then parcellate residual activity data. </span>
+<span class="sd">    </span>
+<span class="sd">    Files:</span>
+<span class="sd">    ------</span>
+<span class="sd">    input_data: a string pointing to the 4D timeseries niimg-like object (most likely to be the residual activity data). </span>
+<span class="sd">    atlas: a string pointing to the 3D atlas (Schaefer or HO). </span>
+<span class="sd">    mask: a string pointing to the 3D subject functional mask. </span>
+<span class="sd">    subcortical: if true, then include subcortical parcellation. </span>
+<span class="sd">    </span>
+<span class="sd">    The HOSPA atlas description is here: https://neurovault.org/images/1707/ </span>
+<span class="sd">    But not all 21 parcels are worth looking at (e.g., 2 is cerebral cortex, 1 is while matter)</span>
+<span class="sd">    </span>
+<span class="sd">    4: left thalamus (201)</span>
+<span class="sd">    5: left caudate (202)</span>
+<span class="sd">    6: left putamen (203)</span>
+<span class="sd">    7: left pallidum (204)</span>
+<span class="sd">    #8: brain-stem</span>
+<span class="sd">    9: left hippocampus (205)</span>
+<span class="sd">    10: left amygdala (206)</span>
+<span class="sd">    11: left accumbens (207)</span>
+<span class="sd">    15: right thalamus (208)</span>
+<span class="sd">    16: right caudate (209)</span>
+<span class="sd">    17: right putamen (210)</span>
+<span class="sd">    18: right pallidum (211)</span>
+<span class="sd">    19: right hippocampus (212)</span>
+<span class="sd">    20: right amygdala (213)</span>
+<span class="sd">    21: right accumbens (214)</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    --------</span>
+<span class="sd">    signal: a 2d numpy array, first dimension is Parcel and the second is TR </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">input_data</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;before_FIR&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_nuisanceRES_CONCAT.nii.gz&quot;</span><span class="p">)</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;transformed_atlas&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_schaefer200_T1W.nii.gz&quot;</span><span class="p">)</span>
+    <span class="n">label_sub</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;transformed_atlas&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_HOSPA_T1W.nii.gz&quot;</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">base_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;task_shared_mask&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;sub-</span><span class="si">{sub:03d}</span><span class="s2">_task-shared_brain-mask.nii.gz&quot;</span><span class="p">)</span>
+
+    <span class="n">signal</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">img_to_signals_labels</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">subcortical</span><span class="p">:</span> 
+        <span class="n">signal_sub</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">img_to_signals_labels</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">label_sub</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+        <span class="n">signal_sub</span> <span class="o">=</span> <span class="n">signal_sub</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">14</span><span class="p">,</span><span class="mi">15</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">17</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">20</span><span class="p">]]</span>
+        <span class="n">signal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">signal</span><span class="p">,</span> <span class="n">signal_sub</span><span class="p">),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+    
+    <span class="c1"># make sure to transpose the signal, so that the first dimension is parcel (instead of TR). </span>
+    <span class="k">return</span> <span class="n">signal</span><span class="o">.</span><span class="n">T</span> </div>
+
+
+
+<div class="viewcode-block" id="detect_bad_frame"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.detect_bad_frame">[docs]</a><span class="k">def</span> <span class="nf">detect_bad_frame</span><span class="p">(</span><span class="n">sub</span><span class="p">,</span> <span class="n">signal</span><span class="p">,</span> <span class="n">run_prop</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">spike</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span> 
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function aims to detect bad runs and bad frames </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    sub: subject id (e.g., 1, 2, 14) </span>
+<span class="sd">    signal: the output of load_sub_data, the shape is nparcel, ts (200,3984)</span>
+<span class="sd">    run_prop: the proportion of frames with FD &gt; 0.5 within each run, exceeding which removes the run (5%)</span>
+<span class="sd">    spike: the spike cutoff (2mm)</span>
+<span class="sd">    </span>
+<span class="sd">    Return: </span>
+<span class="sd">    ts: signal without bad frames, the shape is still 200, 3984, but bad frames are np.nan across all 200 parcels </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># the order that the 12 runs were being concatenated </span>
+    <span class="n">order</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;task-divPerFacePerTone_run-1&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+             <span class="s1">&#39;task-divPerFacePerTone_run-2&#39;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+             <span class="s1">&#39;task-divPerFaceRetScene_run-1&#39;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
+             <span class="s1">&#39;task-divPerFaceRetScene_run-2&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+             <span class="s1">&#39;task-divRetScenePerTone_run-1&#39;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span>
+             <span class="s1">&#39;task-divRetScenePerTone_run-2&#39;</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span>
+             <span class="s1">&#39;task-singlePerFace_run-1&#39;</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span>
+             <span class="s1">&#39;task-singlePerFace_run-2&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span>
+             <span class="s1">&#39;task-singlePerTone_run-1&#39;</span><span class="p">:</span><span class="mi">9</span><span class="p">,</span>
+             <span class="s1">&#39;task-singlePerTone_run-2&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+             <span class="s1">&#39;task-singleRetScene_run-1&#39;</span><span class="p">:</span><span class="mi">11</span><span class="p">,</span>
+             <span class="s1">&#39;task-singleRetScene_run-2&#39;</span><span class="p">:</span><span class="mi">12</span><span class="p">}</span>
+    
+    <span class="c1"># get confound files for the participant, order it as how 12 runs are being concatenated. </span>
+    <span class="n">fmriprep_dir</span> <span class="o">=</span> <span class="s1">&#39;/projects/hulacon/peetal/divatten/derivative/&#39;</span>
+    <span class="n">fir_design</span> <span class="o">=</span> <span class="s2">&quot;/projects/hulacon/peetal/divatten/preprocess/fir_design_matrix.txt&quot;</span>
+    <span class="n">sub_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fmriprep_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;sub-</span><span class="si">{sub:03d}</span><span class="s1">/func&#39;</span><span class="p">)</span>
+    <span class="n">confound_files</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sub_dir</span><span class="p">,</span> <span class="s2">&quot;*_run-*_desc-confounds_timeseries.tsv&quot;</span><span class="p">))</span>
+    <span class="n">confound_files</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">order</span><span class="p">[</span><span class="s1">&#39;_&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">])])</span>
+    
+    <span class="c1"># len(ts)=3984, if 0, then remove the corresponding column in the FIR matrix. </span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">confound_files</span><span class="p">:</span> 
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">,</span><span class="n">sep</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">motion</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;framewise_displacement&#39;</span><span class="p">])</span> <span class="c1"># get FD </span>
+        <span class="n">outlier_prop</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">motion</span><span class="p">)</span><span class="o">&gt;</span><span class="mf">0.5</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">motion</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># %of frames that have FD&gt;0.5</span>
+        
+        <span class="k">if</span> <span class="n">outlier_prop</span> <span class="o">&gt;</span> <span class="n">run_prop</span><span class="p">:</span> <span class="c1"># remove the whole run (all frames are bad frames) </span>
+            <span class="n">ts_run</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">motion</span><span class="p">))]</span>
+        <span class="k">else</span><span class="p">:</span>   
+        <span class="c1"># otherwise check spike, but at the beginning, all timepoints are good frames. </span>
+            <span class="n">ts_run</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">motion</span><span class="p">))]</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">motion</span><span class="p">):</span> 
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">&lt;=</span> <span class="n">spike</span><span class="p">:</span> <span class="k">pass</span> <span class="c1"># if the frist frame or not a spike </span>
+                <span class="k">if</span> <span class="n">m</span> <span class="o">&gt;</span> <span class="n">spike</span><span class="p">:</span> <span class="c1"># if spike </span>
+                    <span class="n">ts_run</span><span class="p">[</span><span class="n">idx</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">ts_run</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span> <span class="c1"># remove the previous and the current frame </span>
+                    <span class="k">if</span> <span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">motion</span><span class="p">):</span> <span class="c1"># if not the last frame, remove the next frame </span>
+                        <span class="n">ts_run</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> 
+        <span class="n">ts</span> <span class="o">+=</span> <span class="n">ts_run</span> 
+    
+    <span class="c1"># check length </span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">!=</span> <span class="n">signal</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span> 
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Timeseries length does not match&quot;</span><span class="p">)</span>
+        <span class="k">return</span> 
+    
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ts</span><span class="p">):</span> <span class="c1"># remove bad frames from timeseries </span>
+        <span class="k">if</span> <span class="n">frame</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> 
+            <span class="k">pass</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="n">signal</span><span class="p">[:,</span> <span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    
+    <span class="k">return</span> <span class="n">signal</span></div>
+    
+
+<div class="viewcode-block" id="separate_epochs"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.separate_epochs">[docs]</a><span class="k">def</span> <span class="nf">separate_epochs</span><span class="p">(</span><span class="n">activity_data</span><span class="p">,</span> <span class="n">epoch_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    create data epoch by epoch;</span>
+<span class="sd">    Separate data into conditions of interest specified in epoch_list</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    activity_data: list of 2D array in shape [nVoxels, nTRs]</span>
+<span class="sd">        the masked activity data organized in voxel*TR formats of all subjects</span>
+<span class="sd">    epoch_list: list of 3D array in shape [condition, nEpochs, nTRs]</span>
+<span class="sd">        specification of epochs and conditions</span>
+<span class="sd">        assuming all subjects have the same number of epochs</span>
+<span class="sd">        len(epoch_list) equals the number of subjects</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    raw_data: list of 2D array in shape [nParcels, timepoints (36*16)]</span>
+<span class="sd">        the data organized in epochs</span>
+<span class="sd">        len(raw_data) equals n subjects * 6 conditions for each subject)</span>
+<span class="sd">    labels: list of 1D array</span>
+<span class="sd">        the condition labels of the epochs</span>
+<span class="sd">        len(labels) labels equals the number of epochs </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">raw_data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">epoch_list</span><span class="p">)):</span> <span class="c1">#for a given subject</span>
+        <span class="n">epoch</span> <span class="o">=</span> <span class="n">epoch_list</span><span class="p">[</span><span class="n">sid</span><span class="p">]</span> <span class="c1"># get their npy array</span>
+        <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span> <span class="c1"># for a given condition</span>
+            <span class="c1"># for each condition</span>
+            <span class="n">sub_epoch</span> <span class="o">=</span> <span class="n">epoch</span><span class="p">[</span><span class="n">cond</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">3984</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">eid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">eid</span><span class="p">,</span> <span class="p">:])</span>
+                <span class="k">if</span> <span class="n">r</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>   <span class="c1"># there is an epoch in this condition</span>
+                    <span class="c1"># collapse all epoch of a condition to a single time series</span>
+                    <span class="n">ts</span><span class="p">[</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">eid</span><span class="p">,</span> <span class="p">:]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">ts</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">mat_cond</span> <span class="o">=</span> <span class="n">activity_data</span><span class="p">[</span><span class="n">sid</span><span class="p">][:,</span><span class="n">ts</span><span class="p">]</span>
+            <span class="n">mat_cond</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ascontiguousarray</span><span class="p">(</span><span class="n">mat_cond</span><span class="p">)</span>
+            <span class="n">raw_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mat_cond</span><span class="p">)</span>
+            <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">raw_data</span><span class="p">,</span> <span class="n">labels</span></div>
+
+<span class="k">def</span> <span class="nf">_divide_into_epoch</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="n">epoch_length</span><span class="p">):</span> 
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function divide full timeseries into same length epochs</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ts: a 2d array, first dimension is number of parcels and th second dimension is TR/epoch * epoch num</span>
+<span class="sd">    epoch_length: TR/epoch </span>
+<span class="sd">    </span>
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    a generater for TRs within each epoch. </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ts_len</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">ts_len</span><span class="p">,</span> <span class="n">epoch_length</span><span class="p">):</span>  
+        <span class="k">yield</span> <span class="n">ts</span><span class="p">[:,</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="n">epoch_length</span><span class="p">]</span> 
+        
+<div class="viewcode-block" id="separate_epochs_per_condition"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.separate_epochs_per_condition">[docs]</a><span class="k">def</span> <span class="nf">separate_epochs_per_condition</span><span class="p">(</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">condition_label</span><span class="p">,</span> <span class="n">sub_num</span><span class="p">):</span> 
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function goes from res3984 into epochs of each condition. </span>
+<span class="sd">    Automatically assume that each epoch has 36 TRs (36 is hard-coded)</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_data: output from function _separate_epochs</span>
+<span class="sd">    labels: second otput from function _separate_epochs</span>
+<span class="sd">    condition_label: This is arbitrarily defined generating epoch files: </span>
+<span class="sd">    0: &#39;divPerFacePerTone&#39;, </span>
+<span class="sd">    1: &#39;divPerFaceRetScene&#39;, </span>
+<span class="sd">    2: &#39;divRetScenePerTone&#39;, </span>
+<span class="sd">    3: &#39;singlePerFace&#39;, </span>
+<span class="sd">    4: &#39;singlePerTone&#39;, </span>
+<span class="sd">    5: &#39;singleRetScene&#39;]</span>
+<span class="sd">    sub_num: the number of subject</span>
+<span class="sd">    </span>
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    cond_epoch_ts: a list of 3d array. The length of the list is the number of subject, </span>
+<span class="sd">                   Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cond_raw_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">raw_data</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span> <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">==</span> <span class="n">condition_label</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span> 
+    <span class="n">cond_epoch_ts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sub_num</span><span class="p">):</span>
+        <span class="n">cond_epoch_ts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_divide_into_epoch</span><span class="p">(</span><span class="n">cond_raw_data</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="mi">36</span><span class="p">)),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">cond_epoch_ts</span></div>
+
+
+<div class="viewcode-block" id="separate_mvpa_epochs_per_condition"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.separate_mvpa_epochs_per_condition">[docs]</a><span class="k">def</span> <span class="nf">separate_mvpa_epochs_per_condition</span><span class="p">(</span><span class="n">raw_data</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">condition_label</span><span class="p">,</span> <span class="n">sub_num</span><span class="p">):</span> 
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function goes from res3984 into epochs of each condition for activity-based analyese. </span>
+<span class="sd">    Each epoch includes 24 task TRs, shifted 3 TR accounting for hemodynamic delay. </span>
+<span class="sd">    The only difference between this function and the function above is 24 vs. 36, I make them </span>
+<span class="sd">    into 2 funtions to avoid having too many parameters to confuse myself in the future. </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_data: output from function _separate_epochs</span>
+<span class="sd">    labels: second otput from function _separate_epochs</span>
+<span class="sd">    condition_label: This is arbitrarily defined generating epoch files: </span>
+<span class="sd">    0: &#39;divPerFacePerTone&#39;, </span>
+<span class="sd">    1: &#39;divPerFaceRetScene&#39;, </span>
+<span class="sd">    2: &#39;divRetScenePerTone&#39;, </span>
+<span class="sd">    3: &#39;singlePerFace&#39;, </span>
+<span class="sd">    4: &#39;singlePerTone&#39;, </span>
+<span class="sd">    5: &#39;singleRetScene&#39;]</span>
+<span class="sd">    sub_num: the number of subject</span>
+<span class="sd">    </span>
+<span class="sd">    Return</span>
+<span class="sd">    ------</span>
+<span class="sd">    cond_epoch_ts: a list of 3d array. The length of the list is the number of subject, </span>
+<span class="sd">                   Each array is of the shape (16 epochs of the condition, 200 parcels, 36 TR)</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">cond_raw_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">raw_data</span><span class="p">[</span><span class="n">cond</span><span class="p">]</span> <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span> <span class="o">==</span> <span class="n">condition_label</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()]</span> 
+    <span class="n">cond_epoch_ts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sub_num</span><span class="p">):</span>
+        <span class="n">cond_epoch_ts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">_divide_into_epoch</span><span class="p">(</span><span class="n">cond_raw_data</span><span class="p">[</span><span class="n">sub</span><span class="p">],</span> <span class="mi">24</span><span class="p">)),</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">cond_epoch_ts</span></div>
+
+<div class="viewcode-block" id="compute_sub_cond_connectome_ztrans"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.compute_sub_cond_connectome_ztrans">[docs]</a><span class="k">def</span> <span class="nf">compute_sub_cond_connectome_ztrans</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function computes the connectome for each epoch, </span>
+<span class="sd">    and then AVERAGES across all peochs of the same condition </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    epoch_data: A list of 2d array. The length equals the number of participant. </span>
+<span class="sd">                Each array is of the shape 16epoch, 200parcels, 36TR/epoch</span>
+<span class="sd">                </span>
+
+<span class="sd">    Returns: </span>
+<span class="sd">    --------</span>
+<span class="sd">    A generator of 3d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># basic information</span>
+    <span class="n">sub_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">)</span> <span class="c1"># the number of partcipants</span>
+    <span class="n">epoch_num</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the number of epochs </span>
+    
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sub_num</span><span class="p">):</span> 
+        <span class="c1"># grad the subject&#39;s data</span>
+        <span class="n">sub_epoch</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>
+        
+        <span class="c1"># compute connectome for each epoch [16, 200, 200]</span>
+        <span class="n">sub_epoch_connectome</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch_num</span><span class="p">)]</span>
+        
+        <span class="c1"># averave CorMat across all epochs </span>
+        <span class="n">sub_cond_connectome</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sub_epoch_connectome</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">sub_cond_connectome</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># fill the diagnal with 0 for graph construction later</span>
+        
+        <span class="n">sub_cond_connectome_ztrans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">sub_cond_connectome</span><span class="p">)</span>
+        
+        <span class="k">yield</span> <span class="n">sub_cond_connectome_ztrans</span></div>
+        
+<div class="viewcode-block" id="compute_sub_cond_connectome_ztrans_nobadframe"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.compute_sub_cond_connectome_ztrans_nobadframe">[docs]</a><span class="k">def</span> <span class="nf">compute_sub_cond_connectome_ztrans_nobadframe</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function computes the connectome for each epoch, </span>
+<span class="sd">    and then AVERAGES across all peochs of the same condition. </span>
+<span class="sd">    Important: </span>
+<span class="sd">    1) If all frames within this epoch is np.nan, drop the epoch</span>
+<span class="sd">    2) If some frames within this epoch is np.nan, drop the frame then compute the correlation matrix </span>
+<span class="sd">    Thus, per subject, per condition, not always 16 epochs! </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    epoch_data: A list of 2d array. The length equals the number of participant. </span>
+<span class="sd">                Each array is of the shape 16epoch, 200parcels, 36TR/epoch</span>
+
+<span class="sd">    Returns: </span>
+<span class="sd">    --------</span>
+<span class="sd">    A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># basic information</span>
+    <span class="n">sub_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">)</span> <span class="c1"># the number of partcipants</span>
+    <span class="n">epoch_num</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the number of epochs </span>
+    
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sub_num</span><span class="p">):</span> 
+
+        <span class="c1"># grab the subject&#39;s data, shape is [16,200,36]</span>
+        <span class="n">sub_epoch</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>
+        <span class="n">sub_epoch_connectome</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cur_epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch_num</span><span class="p">):</span> 
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">cur_epoch</span><span class="p">,:,:])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span> <span class="c1"># if this epoch is full of na, meaning this epoch (run) has been dropped.</span>
+                <span class="k">pass</span> 
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="c1"># compute connectome for each nonempty epoch [8/16, 200, 200]</span>
+                <span class="n">sub_epoch_connectome</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">cur_epoch</span><span class="p">,:,:]))</span><span class="o">.</span><span class="n">filled</span><span class="p">())</span>
+
+        <span class="c1">#print(len(sub_epoch_connectome))</span>
+
+        <span class="c1"># averave CorMat across all epochs </span>
+        <span class="n">sub_cond_connectome</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">sub_epoch_connectome</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">sub_cond_connectome</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># fill the diagnal with 0 for graph construction later</span>
+
+        <span class="n">sub_cond_connectome_ztrans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">sub_cond_connectome</span><span class="p">)</span>
+
+        <span class="k">yield</span> <span class="n">sub_cond_connectome_ztrans</span></div>
+            
+<div class="viewcode-block" id="compute_epoch_cond_connectome_ztrans_nobadframe"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.compute_epoch_cond_connectome_ztrans_nobadframe">[docs]</a><span class="k">def</span> <span class="nf">compute_epoch_cond_connectome_ztrans_nobadframe</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function computes the connectome for each epoch for each condition</span>
+<span class="sd">    </span>
+<span class="sd">    Important: </span>
+<span class="sd">    1) If all frames within this epoch is np.nan, drop the epoch</span>
+<span class="sd">    2) If some frames within this epoch is np.nan, drop the frame then compute the correlation matrix </span>
+<span class="sd">    Thus, per subject, per condition, not always 16 epochs! </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    epoch_data: A list of 2d array. The length equals the number of participant. </span>
+<span class="sd">                Each array is of the shape 16epoch, 200parcels, 36TR/epoch</span>
+<span class="sd">                </span>
+<span class="sd">    Returns: </span>
+<span class="sd">    --------</span>
+<span class="sd">    A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is the total number of epochs across all subjects. </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># basic information</span>
+    <span class="n">sub_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">)</span> <span class="c1"># the number of partcipants</span>
+    <span class="n">epoch_num</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the number of epochs </span>
+    
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sub_num</span><span class="p">):</span> 
+        
+        <span class="c1"># grab the subject&#39;s data, shape is [16,200,36]</span>
+        <span class="n">sub_epoch</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>
+        <span class="n">sub_epoch_connectome</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cur_epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch_num</span><span class="p">):</span> 
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">cur_epoch</span><span class="p">,:,:])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span> <span class="c1"># if this epoch is full of na, meaning this epoch (run) has been dropped.</span>
+                <span class="k">pass</span> 
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="c1"># compute connectome for each nonempty epoch [8/16, 200, 200]</span>
+                <span class="n">sub_epoch_connectome</span> <span class="o">=</span> <span class="n">ma</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">cur_epoch</span><span class="p">,:,:]))</span><span class="o">.</span><span class="n">filled</span><span class="p">()</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">sub_epoch_connectome</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">sub_epoch_connectome_ztrans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">sub_epoch_connectome</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">sub_epoch_connectome_ztrans</span></div>
+
+        
+<div class="viewcode-block" id="compute_epoch_cond_connectome_ztrans"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.compute_epoch_cond_connectome_ztrans">[docs]</a><span class="k">def</span> <span class="nf">compute_epoch_cond_connectome_ztrans</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function computes the connectome for each epoch, then vectorize each epoch </span>
+<span class="sd">    return a list of vectorized connectome</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    epoch_data: A list of 2d array. The length equals the number of participant. </span>
+<span class="sd">                Each array is of the shape 16epoch, 200parcels, 36TR/epoch</span>
+<span class="sd">                </span>
+
+<span class="sd">    Returns: </span>
+<span class="sd">    --------</span>
+<span class="sd">    A list (len = subject) of list (len = epoch = 16) of vectorized connectom </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># basic information</span>
+    <span class="n">sub_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">)</span> <span class="c1"># the number of partcipants</span>
+    <span class="n">epoch_num</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the number of epochs </span>
+    
+    <span class="n">sub_epoch_vector</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sub_num</span><span class="p">):</span> 
+        <span class="c1"># grad the subject&#39;s data</span>
+        <span class="n">sub_epoch</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>
+        
+        <span class="c1"># compute connectome for each epoch [16, 200, 200]</span>
+        <span class="n">sub_epoch_connectome</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">e</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:])</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch_num</span><span class="p">)]</span>
+        <span class="n">sub_epoch_connectome_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sub_epoch_connectome</span><span class="p">]</span>
+        <span class="n">sub_epoch_connectome_vector</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sub_epoch_connectome_z</span><span class="p">]</span>
+        
+        <span class="n">sub_epoch_vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_epoch_connectome_vector</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">sub_epoch_vector</span></div>
+
+<div class="viewcode-block" id="compute_epoch_cond_edgevec_ztrans_nobadframe"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.compute_epoch_cond_edgevec_ztrans_nobadframe">[docs]</a><span class="k">def</span> <span class="nf">compute_epoch_cond_edgevec_ztrans_nobadframe</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">:</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function computes the connectome for each epoch, then vectorize each epoch </span>
+<span class="sd">    return a list of vectorized connectome</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    epoch_data: A list of 2d array. The length equals the number of participant. </span>
+<span class="sd">                Each array is of the shape 16epoch, 200parcels, 36TR/epoch</span>
+<span class="sd">                </span>
+
+<span class="sd">    Returns: </span>
+<span class="sd">    --------</span>
+<span class="sd">    A list (len = subject) of list (len = epoch = 16 or 8) of vectorized connectom(19800)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># basic information</span>
+    <span class="n">sub_num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">epoch_data</span><span class="p">)</span> <span class="c1"># the number of partcipants</span>
+    <span class="n">epoch_num</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># the number of epochs </span>
+    
+    <span class="n">sub_epoch_vector</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">sub_num</span><span class="p">):</span> 
+        
+        <span class="c1"># grad the subject&#39;s data, shape is [16,200,36]</span>
+        <span class="n">sub_epoch</span> <span class="o">=</span> <span class="n">epoch_data</span><span class="p">[</span><span class="n">sub</span><span class="p">]</span>
+        <span class="n">sub_epoch_connectome</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cur_epoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">epoch_num</span><span class="p">):</span> 
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">cur_epoch</span><span class="p">,:,:])</span><span class="o">.</span><span class="n">all</span><span class="p">():</span> <span class="c1"># if this epoch is full of na, meaning this epoch (run) has been dropped.</span>
+                <span class="k">pass</span> 
+            <span class="k">else</span><span class="p">:</span> 
+                <span class="c1"># compute connectome for each nonempty epoch 8 or 16 200x200 array (or 214x214). </span>
+                <span class="n">sub_epoch_connectome</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_invalid</span><span class="p">(</span><span class="n">sub_epoch</span><span class="p">[</span><span class="n">cur_epoch</span><span class="p">,:,:]))</span><span class="o">.</span><span class="n">filled</span><span class="p">())</span>
+
+        <span class="c1"># z_transform connectome for each epoch 8 or 16 200x200 array (or 214x214)</span>
+        <span class="n">sub_epoch_connectome_z</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">arctanh</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sub_epoch_connectome</span><span class="p">]</span>
+        <span class="c1"># vectorize connections: list (8 or 16 epoch) of 19900 vector</span>
+        <span class="n">nparcel</span> <span class="o">=</span> <span class="n">sub_epoch_connectome_z</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">sub_epoch_connectome_vector</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">nparcel</span><span class="p">,</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">sub_epoch_connectome_z</span><span class="p">]</span> 
+
+        <span class="n">sub_epoch_vector</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_epoch_connectome_vector</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">sub_epoch_vector</span> </div>
+        
+        
+<div class="viewcode-block" id="construct_graphs"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.construct_graphs">[docs]</a><span class="k">def</span> <span class="nf">construct_graphs</span><span class="p">(</span><span class="n">corMats</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function construct a unthresholded, weighted, graph for each connectome</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    corMat_list: A list of connectome (i.e., correlation matrix)</span>
+<span class="sd">    threshold: whether to include the edge, default is 0</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">_do_single_graph</span><span class="p">(</span><span class="n">corMat</span><span class="p">,</span> <span class="n">threshold</span><span class="p">):</span>
+        
+        <span class="c1"># Preset the graph</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+
+        <span class="c1"># Create the edge list</span>
+        <span class="n">nodelist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">edgelist</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">row_counter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">corMat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">nodelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row_counter</span><span class="p">))</span>  <span class="c1"># Set up the node names (zero indexed)</span>
+            <span class="k">for</span> <span class="n">col_counter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">corMat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+
+                <span class="c1"># Determine whether to include the edge based on whether it exceeds the threshold</span>
+                <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">corMat</span><span class="p">[</span><span class="n">row_counter</span><span class="p">,</span> <span class="n">col_counter</span><span class="p">])</span> <span class="o">&gt;</span> <span class="nb">abs</span><span class="p">(</span><span class="n">threshold</span><span class="p">):</span>
+                    <span class="c1"># Add a tuple specifying the voxel pairs being compared and the weight of the edge</span>
+                    <span class="n">edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">row_counter</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">col_counter</span><span class="p">),</span> <span class="p">{</span><span class="s1">&#39;coupling_strength&#39;</span><span class="p">:</span> <span class="n">corMat</span><span class="p">[</span><span class="n">row_counter</span><span class="p">,</span> <span class="n">col_counter</span><span class="p">]}))</span>
+                    <span class="c1">#edgelist.append((str(row_counter), str(col_counter), {&#39;weight&#39;: 1}))</span>
+
+        <span class="c1"># Create the nodes in the graph</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">nodelist</span><span class="p">)</span>
+
+        <span class="c1"># Add the edges</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">edgelist</span><span class="p">)</span>
+        
+        <span class="n">nx</span><span class="o">.</span><span class="n">set_edge_attributes</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="mi">1</span><span class="o">/</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;coupling_strength&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">e</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="o">.</span><span class="n">items</span><span class="p">()},</span> <span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+    
+        <span class="k">return</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">corMats</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span> <span class="c1"># if input is a list of corMat, then return a list of graph </span>
+        <span class="n">graph_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">_do_single_graph</span><span class="p">(</span><span class="n">corMat</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span> <span class="k">for</span> <span class="n">corMat</span> <span class="ow">in</span> <span class="n">corMats</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># otherwise, just return a single graph. </span>
+        <span class="n">graph_list</span> <span class="o">=</span> <span class="n">_do_single_graph</span><span class="p">(</span><span class="n">corMats</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph_list</span></div>
+
+<div class="viewcode-block" id="compute_threshold"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.compute_threshold">[docs]</a><span class="k">def</span> <span class="nf">compute_threshold</span><span class="p">(</span><span class="n">corMat</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function computes threshold given edge density (i.e., the percentage of edges to keep). </span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    corMat: one correlation matrix </span>
+<span class="sd">    density: the percentage of edges to keep (e.g., 15 means to keep the top 15%)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="k">def</span> <span class="nf">_upper_tri_indexing</span><span class="p">(</span><span class="n">A</span><span class="p">):</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">A</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">r</span><span class="p">,</span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu_indices</span><span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">A</span><span class="p">[</span><span class="n">r</span><span class="p">,</span><span class="n">c</span><span class="p">]</span>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">_upper_tri_indexing</span><span class="p">(</span><span class="n">corMat</span><span class="p">),</span><span class="mi">100</span><span class="o">-</span><span class="n">density</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">threshold</span></div>
+    
+
+<div class="viewcode-block" id="construct_threshold_binary_graphs"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.construct_threshold_binary_graphs">[docs]</a><span class="k">def</span> <span class="nf">construct_threshold_binary_graphs</span><span class="p">(</span><span class="n">corMats</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function construct thresholded, binary, graph for each connectome</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    -----------</span>
+<span class="sd">    corMat_list: A list of connectome (i.e., correlation matrix)</span>
+<span class="sd">    density: the percentage of edges to keep (e.g., 15 means to keep the top 15%)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_do_single_graph</span><span class="p">(</span><span class="n">corMat</span><span class="p">,</span> <span class="n">density</span><span class="p">):</span>
+        
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">compute_threshold</span><span class="p">(</span><span class="n">corMat</span><span class="p">,</span> <span class="n">density</span><span class="p">)</span>
+        
+        <span class="c1"># Preset the graph</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+
+        <span class="c1"># Create the edge list</span>
+        <span class="n">nodelist</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">edgelist</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="k">for</span> <span class="n">row_counter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">corMat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">nodelist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">row_counter</span><span class="p">))</span>  <span class="c1"># Set up the node names (zero indexed)</span>
+            <span class="k">for</span> <span class="n">col_counter</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">corMat</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+
+                <span class="c1"># Determine whether to include the edge based on whether it exceeds the threshold -&gt; constructing binary graph</span>
+                <span class="k">if</span> <span class="n">corMat</span><span class="p">[</span><span class="n">row_counter</span><span class="p">,</span> <span class="n">col_counter</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">:</span>
+                    <span class="n">edgelist</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">row_counter</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">col_counter</span><span class="p">),</span> <span class="p">{</span><span class="s1">&#39;weight&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}))</span>
+
+        <span class="c1"># Create the nodes in the graph</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">nodelist</span><span class="p">)</span>
+
+        <span class="c1"># Add the edges</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">edgelist</span><span class="p">)</span>
+        
+        <span class="k">return</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">corMats</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span> <span class="c1"># if input is a list of corMat, then return a list of graph </span>
+        <span class="n">graph_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">_do_single_graph</span><span class="p">(</span><span class="n">corMat</span><span class="p">,</span> <span class="n">density</span><span class="p">)</span> <span class="k">for</span> <span class="n">corMat</span> <span class="ow">in</span> <span class="n">corMats</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># otherwise, just return a single graph. </span>
+        <span class="n">graph_list</span> <span class="o">=</span> <span class="n">_do_single_graph</span><span class="p">(</span><span class="n">corMats</span><span class="p">,</span> <span class="n">density</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph_list</span></div>
+
+
+<div class="viewcode-block" id="participation_coefficient"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.bgfc_analyses.participation_coefficient">[docs]</a><span class="k">def</span> <span class="nf">participation_coefficient</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">module_partition</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Computes the participation coefficient of nodes of G with partition</span>
+<span class="sd">    defined by module_partition.</span>
+<span class="sd">    (Guimera et al. 2005).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    G : :class:`networkx.Graph`</span>
+<span class="sd">    module_partition : dict</span>
+<span class="sd">        a dictionary mapping each community name to a list of nodes in G</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        a dictionary mapping the nodes of G to their participation coefficient</span>
+<span class="sd">        under the participation specified by module_partition.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Initialise dictionary for the participation coefficients</span>
+    <span class="n">pc_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Loop over modules to calculate participation coefficient for each node</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">module_partition</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="c1"># Create module subgraph</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">module_partition</span><span class="p">[</span><span class="n">m</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">M</span><span class="p">:</span>
+            <span class="c1"># Calculate the degree of v in G</span>
+            <span class="n">degree</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">degree</span><span class="p">(</span><span class="n">G</span><span class="o">=</span><span class="n">G</span><span class="p">,</span> <span class="n">nbunch</span><span class="o">=</span><span class="n">v</span><span class="p">))</span>
+
+            <span class="c1"># Calculate the number of intramodule degree of v</span>
+            <span class="n">wm_degree</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">M</span> <span class="k">if</span> <span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">()]))</span>
+            
+            <span class="k">if</span> <span class="n">degree</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">wm_degree</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
+                <span class="n">pc_dict</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span> 
+            <span class="c1"># The participation coeficient is 1 - the square of</span>
+            <span class="c1"># the ratio of the within module degree and the total degree</span>
+                <span class="n">pc_dict</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">wm_degree</span><span class="p">)</span> <span class="o">/</span> <span class="nb">float</span><span class="p">(</span><span class="n">degree</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pc_dict</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2023, Peeta Li
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
