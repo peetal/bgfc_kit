@@ -27,5 +27,4 @@ pip install git+https://github.com/peetal/bgfc_kit.git
 -----------------
 
 Please see [documentation](https://peetal.github.io/bgfc_kit/) for detailed information of each module. <br>
-Please see [scripts] subdirectory for detailed information for the preprocessing pipeline. <br>
-Please see [demo] subdirectory for an example of using the _bgfc_kit_ package. <br>
+Please see [demo](https://github.com/peetal/bgfc_kit/tree/main/bgfc_kit/demo) subdirectory for a detailed demo of key features. <br>
