@@ -596,8 +596,8 @@ def participation_coefficient(G, module_partition):
 
     Returns
     -------
-    dict
-        a dictionary mapping the nodes of G to their participation coefficient
+    dict:
+        A dictionary mapping the nodes of G to their participation coefficient
         under the participation specified by module_partition.
     '''
     # Initialise dictionary for the participation coefficients
