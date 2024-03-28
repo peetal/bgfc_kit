@@ -265,13 +265,13 @@ def _create_shared_mask(mask_list, subj_id):
 def _beta_naming(subj_id):
      
     import os
-    return os.path.join(os.getcwd(), (f'sub-{subj_id}_beta216.nii.gz'))
+    return os.path.join(os.getcwd(), (f'sub-{subj_id}_beta.nii.gz'))
 
 # for FIR glm output residual naming
 def _res_naming(subj_id):
     
     import os
-    return os.path.join(os.getcwd(), (f'sub-{subj_id}_res3984.nii.gz'))
+    return os.path.join(os.getcwd(), (f'sub-{subj_id}_res.nii.gz'))
 
 
 # ----------------------
