@@ -11,7 +11,7 @@ from .preprocessing_pipeline import (
 )
 from .bgfc_analyses import (
     unpack_conf,
-    load_sub_data
+    load_sub_data,
     detect_bad_frame,
     parcellate_rmMotion_batch,
     define_epoch,
