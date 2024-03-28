@@ -277,8 +277,9 @@ def compute_sub_cond_connectome_ztrans(epoch_data:np.ndarray):
     
     Parameters
     -----------
-    epoch_data: A list of 2d array. The length equals the number of participant. 
-                Each array is of the shape 16epoch, 200parcels, 36TR/epoch
+    epoch_data: 
+        A list of 2d array. 
+        The length equals the number of participant. Each array is of the shape 16epoch, 200parcels, 36TR/epoch
                 
 
     Yields
@@ -309,8 +310,7 @@ def compute_sub_cond_connectome_ztrans(epoch_data:np.ndarray):
 def compute_sub_cond_connectome_ztrans_nobadframe(epoch_data:np.ndarray):
     
     """
-    This function computes the connectome for each epoch, 
-    and then AVERAGES across all peochs of the same condition. 
+    This function computes the connectome for each epoch, and then AVERAGES across all peochs of the same condition. 
     Important: 
     1) If all frames within this epoch is np.nan, drop the epoch
     2) If some frames within this epoch is np.nan, drop the frame then compute the correlation matrix 
@@ -318,12 +318,14 @@ def compute_sub_cond_connectome_ztrans_nobadframe(epoch_data:np.ndarray):
     
     Parameters: 
     -----------
-    epoch_data: A list of 2d array. The length equals the number of participant. 
-                Each array is of the shape 16epoch, 200parcels, 36TR/epoch
+    epoch_data: 
+        A list of 2d array. 
+        The length equals the number of participant. Each array is of the shape 16epoch, 200parcels, 36TR/epoch
 
-    Returns: 
+    Yields: 
     --------
-    A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub
+    sub_cond_connectome_ztrans:
+        A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is nsub
     """
     
     # basic information
@@ -364,12 +366,14 @@ def compute_epoch_cond_connectome_ztrans_nobadframe(epoch_data:np.ndarray):
     
     Parameters: 
     -----------
-    epoch_data: A list of 2d array. The length equals the number of participant. 
-                Each array is of the shape 16epoch, 200parcels, 36TR/epoch
+    epoch_data: 
+        A list of 2d array. 
+        The length equals the number of participant. Each array is of the shape 16epoch, 200parcels, 36TR/epoch
                 
-    Returns: 
+    Yields: 
     --------
-    A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is the total number of epochs across all subjects. 
+    sub_epoch_connectome_ztrans: 
+        A generator of 2d arrays. 200 by 200 corMat (averaged across all epochs). generator length is the total number of epochs across all subjects. 
     """
     
     # basic information
@@ -400,13 +404,14 @@ def compute_epoch_cond_connectome_ztrans(epoch_data:np.ndarray):
     
     Parameters: 
     -----------
-    epoch_data: A list of 2d array. The length equals the number of participant. 
-                Each array is of the shape 16epoch, 200parcels, 36TR/epoch
+    epoch_data: 
+        A list of 2d array. 
+        The length equals the number of participant. Each array is of the shape 16epoch, 200parcels, 36TR/epoch
                 
-
     Returns: 
     --------
-    A list (len = subject) of list (len = epoch = 16) of vectorized connectom 
+    sub_epoch_vector:
+        A list (len = subject) of list (len = epoch = 16) of vectorized connectom 
     """
     
     # basic information
@@ -435,13 +440,15 @@ def compute_epoch_cond_edgevec_ztrans_nobadframe(epoch_data:np.ndarray):
     
     Parameters: 
     -----------
-    epoch_data: A list of 2d array. The length equals the number of participant. 
-                Each array is of the shape 16epoch, 200parcels, 36TR/epoch
+    epoch_data: 
+        A list of 2d array. 
+        The length equals the number of participant. Each array is of the shape 16epoch, 200parcels, 36TR/epoch
                 
 
     Returns: 
     --------
-    A list (len = subject) of list (len = epoch = 16 or 8) of vectorized connectom(19800)
+    sub_epoch_vector:
+        A list (len = subject) of list (len = epoch = 16 or 8) of vectorized connectom(19800)
     """
     
     # basic information
@@ -479,8 +486,15 @@ def construct_graphs(corMats, threshold=0):
     
     Parameters: 
     -----------
-    corMat_list: A list of connectome (i.e., correlation matrix)
-    threshold: whether to include the edge, default is 0
+    corMat_list: 
+        A list of connectome (i.e., correlation matrix)
+    threshold: 
+        Whether to include the edge, default is 0
+
+    Returns: 
+    --------
+    graph_list: 
+        A list of networkX graphs created based on the input correlation matrices. 
     """
     
     def _do_single_graph(corMat, threshold):
@@ -525,8 +539,16 @@ def compute_threshold(corMat, density):
     
     Parameters: 
     -----------
-    corMat: one correlation matrix 
-    density: the percentage of edges to keep (e.g., 15 means to keep the top 15%)
+    corMat: 
+        One correlation matrix 
+    density: 
+        The percentage of edges to keep (e.g., 15 means to keep the top 15%)
+    
+    Returns: 
+    --------
+    threshold: 
+        The threshold computed based on the corMat and density
+
     """
     
     def _upper_tri_indexing(A):
@@ -544,8 +566,15 @@ def construct_threshold_binary_graphs(corMats, density):
     
     Parameters: 
     -----------
-    corMat_list: A list of connectome (i.e., correlation matrix)
-    density: the percentage of edges to keep (e.g., 15 means to keep the top 15%)
+    corMat_list: 
+        A list of connectome (i.e., correlation matrix)
+    density: 
+        The percentage of edges to keep (e.g., 15 means to keep the top 15%)
+
+    Returns: 
+    --------
+    graph_list: 
+        A list of networkX graphs created based on the input correlation matrices. 
     """
     def _do_single_graph(corMat, density):
         
@@ -590,14 +619,15 @@ def participation_coefficient(G, module_partition):
 
     Parameters
     ----------
-    G : :class:`networkx.Graph`
-    module_partition : dict
-        a dictionary mapping each community name to a list of nodes in G
+    G:
+        Class of networkx.Graph
+    module_partition:
+        A dictionary mapping each community name to a list of nodes in G
 
     Returns
     -------
     dict:
-        A dictionary mapping the nodes of G to their participation coefficient
+        A dictionary mapping the nodes of G to their participation coefficient 
         under the participation specified by module_partition.
     '''
     # Initialise dictionary for the participation coefficients
