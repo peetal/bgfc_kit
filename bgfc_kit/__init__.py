@@ -10,16 +10,17 @@ from .preprocessing_pipeline import (
     submit_postfMRIprep_pipeline_SLURM
 )
 from .bgfc_analyses import (
-    load_sub_data,
+    unpack_conf,
+    load_sub_data
     detect_bad_frame,
+    parcellate_rmMotion_batch,
+    define_epoch,
     separate_epochs,
     separate_epochs_per_condition,
-    separate_mvpa_epochs_per_condition,
-    compute_sub_cond_connectome_ztrans,
     compute_sub_cond_connectome_ztrans_nobadframe,
     compute_epoch_cond_connectome_ztrans_nobadframe,
-    compute_epoch_cond_connectome_ztrans,
-    compute_epoch_cond_edgevec_ztrans_nobadframe,
+    vectorize_connectome,
+    plot_parcel_FIR_estimates,
     construct_graphs,
     compute_threshold,
     construct_threshold_binary_graphs,
