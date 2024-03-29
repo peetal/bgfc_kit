@@ -15,6 +15,7 @@ from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
 from subprocess import call 
 from scipy.stats import sem
+from .structDict import recurseCreateStructDict
 
 def unpack_conf(FIRdesignMat_conf_dir:str, postfMRIprep_conf_dir:str): 
 
