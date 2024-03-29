@@ -1,6 +1,6 @@
 import numpy as np 
 import pandas as pd
-import os, glob
+import os, glob, toml
 from nilearn import image
 from nilearn.regions import img_to_signals_labels
 import networkx as nx
