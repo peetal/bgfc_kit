@@ -1,0 +1,356 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bgfc_kit.preprocessing_pipeline &mdash; BGFCkit Documentation 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> BGFCkit Documentation
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">bgfc_kit</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BGFCkit Documentation</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>bgfc_kit.preprocessing_pipeline</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bgfc_kit.preprocessing_pipeline</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">glob</span><span class="o">,</span> <span class="nn">toml</span> 
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">product</span>
+<span class="kn">from</span> <span class="nn">.structDict</span> <span class="kn">import</span> <span class="n">recurseCreateStructDict</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span><span class="p">,</span> <span class="n">product</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+
+
+<div class="viewcode-block" id="generate_postfMRIprep_pipeline_template_toml"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.preprocessing_pipeline.generate_postfMRIprep_pipeline_template_toml">[docs]</a><span class="k">def</span> <span class="nf">generate_postfMRIprep_pipeline_template_toml</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span> 
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is the configuration file for post-fMRIprep preprocessing pipeline. This pipeline includes 1) smoothing and high-pass filterinng, 2) nuisance GLM using FSL FEAT implemented with nipype, 3) demean of each run (i.e., zscoring the whole run using the mean and sd of the &#39;resting TRs&#39;, which will be defined by your configuration file), and concatenating all runs into one long timeseries (the order of concatenation is crucial, it should be identical to your FIR design matrix, which will be defined by your configuration file), and 4) FIR glm. You need to specify all the parameters listed below in order to run the pipeline. The important output files are 1) evoked timeseries after regressing out confounds, which can be found sub-xx/before_FIR folder, 2) residual timeseries after regressing out stimulus evoked activities, which can be found sub-xx/FIR_residual folder, and 3) FIR regressor beta values, which can be found sub-xx/FIR_betas.</span>
+<span class="sd">PARAMETERS:</span>
+<span class="sd">- &quot;sub_id&quot;: subject id; This is placed at %s following &#39;sub-&#39;; be consistent with fMRIprep naming convention: sub-%s_task-%s_space-%s_desc-preproc_bold.nii.gz</span>
+<span class="sd">- &quot;task_id&quot;: A list of tasks; This is placed at %s following &#39;task-&#39;. IMPORTANT: make sure the order you provide is consistent with the design matrix</span>
+<span class="sd">- &quot;space&quot;: This be placed at %s following &#39;space-&#39; (e.g., MNI152NLin2009cAsym_res-2)</span>
+<span class="sd">- &quot;base_dir&quot;: where fMRIPrep derivative folder is at </span>
+<span class="sd">- &quot;output_dir&quot;: output directory</span>
+<span class="sd">- &quot;designMat_dir&quot;: directory for the FIR design matrix</span>
+<span class="sd">- &quot;runRest_tr&quot;: list of TRs that are &#39;rest TR&#39;, will serve as baseline activity level</span>
+<span class="sd">- &quot;fwhm&quot;: smoothing kernel size</span>
+<span class="sd">- &quot;hpcutoff&quot;: high pass filter cut off, by setting default value being 50, high pass filter is 100</span>
+<span class="sd">- &quot;nproc&quot;: multithreading</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        
+         <span class="s2">&quot;HOW TO USE&quot;</span><span class="p">:</span><span class="s2">&quot;This is the configuration file for post-fMRIprep preprocessing pipeline. This pipeline includes 1) smoothing and high-pass filterinng, 2) nuisance GLM using FSL FEAT implemented with nipype, 3) demean of each run (i.e., zscoring the whole run using the mean and sd of the &#39;resting TRs&#39;, which will be defined by your configuration file), and concatenating all runs into one long timeseries (the order of concatenation is crucial, it should be identical to your FIR design matrix, which will be defined by your configuration file), and 4) FIR glm. You need to specify all the parameters listed below in order to run the pipeline. The important output files are 1) evoked timeseries after regressing out confounds, which can be found sub-xx/before_FIR folder, 2) residual timeseries after regressing out stimulus evoked activities, which can be found sub-xx/FIR_residual folder, and 3) FIR regressor beta values, which can be found sub-xx/FIR_betas.&quot;</span>
+        
+        <span class="p">,</span><span class="s2">&quot;PARAMETERS&quot;</span><span class="p">:{</span>
+
+            <span class="s2">&quot;sub_id&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;designMat_dir&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;runRest_tr&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;fwhm&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;hpcutoff&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+            <span class="p">,</span><span class="s2">&quot;nproc&quot;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span>
+        <span class="p">}</span>
+
+        <span class="p">,</span><span class="s2">&quot;COMMENTS&quot;</span><span class="p">:{</span>
+
+            <span class="s2">&quot;sub_id&quot;</span><span class="p">:</span> <span class="s2">&quot;subject id; This is placed at </span><span class="si">%s</span><span class="s2"> following &#39;sub-&#39;; be consistent with fMRIprep naming convention: sub-</span><span class="si">%s</span><span class="s2">_task-</span><span class="si">%s</span><span class="s2">_space-</span><span class="si">%s</span><span class="s2">_desc-preproc_bold.nii.gz&quot;</span>
+            <span class="p">,</span><span class="s2">&quot;task_id&quot;</span><span class="p">:</span> <span class="s2">&quot;A list of tasks; This is placed at </span><span class="si">%s</span><span class="s2"> following &#39;task-&#39;. IMPORTANT: make sure the order you provide is consistent with the design matrix&quot;</span>
+            <span class="p">,</span><span class="s2">&quot;space&quot;</span><span class="p">:</span> <span class="s2">&quot;This be placed at </span><span class="si">%s</span><span class="s2"> following &#39;space-&#39; (e.g., MNI152NLin2009cAsym_res-2)&quot;</span>
+            <span class="p">,</span><span class="s2">&quot;base_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;where fMRIPrep derivative folder is at&quot;</span> 
+            <span class="p">,</span><span class="s2">&quot;output_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;output directory&quot;</span>
+            <span class="p">,</span><span class="s2">&quot;designMat_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;directory for the FIR design matrix&quot;</span> 
+            <span class="p">,</span><span class="s2">&quot;runRest_tr&quot;</span><span class="p">:</span> <span class="s2">&quot;list of TRs that are &#39;rest TR&#39;, will serve as baseline activity level&quot;</span>
+            <span class="p">,</span><span class="s2">&quot;fwhm&quot;</span><span class="p">:</span> <span class="s2">&quot;smoothing kernel size&quot;</span>
+            <span class="p">,</span><span class="s2">&quot;hpcutoff&quot;</span><span class="p">:</span> <span class="s2">&quot;high pass filter cut off, by setting default value being 50, high pass filter is 100&quot;</span>
+            <span class="p">,</span><span class="s2">&quot;nproc&quot;</span><span class="p">:</span> <span class="s2">&quot;multithreading&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Write the data to the TOML file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span><span class="s2">&quot;postfMRIprep_pipeline_config.toml&quot;</span><span class="p">),</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">toml_file</span><span class="p">:</span>
+        <span class="n">toml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">toml_file</span><span class="p">)</span></div>
+        
+<span class="k">def</span> <span class="nf">_generate_python_command</span><span class="p">(</span><span class="n">cfg_dir</span><span class="p">):</span> 
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function takes in the configuration file and generate the corresponding python command </span>
+<span class="sd">    for post-fMRIprep preprocessing pipeline</span>
+<span class="sd">    cfg_dir: the directory of the configuration file </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># Get the path of the current script</span>
+    <span class="n">current_script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+
+    <span class="c1"># Construct the path to the script within the library</span>
+    <span class="n">library_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">current_script_path</span><span class="p">)</span>
+    <span class="n">script_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">library_path</span><span class="p">,</span> <span class="s2">&quot;scripts&quot;</span><span class="p">,</span> <span class="s2">&quot;post_fMRIPrep_pipeline.py&quot;</span><span class="p">)</span>
+
+    <span class="c1"># load configuration file </span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">cfg_dir</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">toml_file</span><span class="p">:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">toml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">toml_file</span><span class="p">)</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">recurseCreateStructDict</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">cfg</span><span class="o">.</span><span class="n">PARAMETERS</span>
+    
+    <span class="c1"># task_id and runRest_tr are lists, reformat them for feeding into argparse. </span>
+    <span class="n">task_id</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">task_id</span><span class="p">:</span> 
+        <span class="n">task_id</span> <span class="o">+=</span> <span class="n">task</span>
+        <span class="n">task_id</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span>
+    <span class="n">rest_tr</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="nb">eval</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">runRest_tr</span><span class="p">):</span> 
+        <span class="n">rest_tr</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span> 
+        <span class="n">rest_tr</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span>
+    
+    <span class="c1"># generate and return command </span>
+    <span class="n">command</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;python3 </span><span class="si">{script_path}</span><span class="s2"> --sub-id </span><span class="si">{cfg.sub_id}</span><span class="s2"> --task-id </span><span class="si">{task_id}</span><span class="s2"> --space </span><span class="si">{cfg.space}</span><span class="s2"> --base-dir </span><span class="si">{cfg.base_dir}</span><span class="s2"> --output-dir </span><span class="si">{cfg.output_dir}</span><span class="s2"> --designMat-dir </span><span class="si">{cfg.designMat_dir}</span><span class="s2"> --run-restTR </span><span class="si">{rest_tr}</span><span class="s2"> --fwhm </span><span class="si">{cfg.fwhm}</span><span class="s2"> --hpcutoff </span><span class="si">{cfg.hpcutoff}</span><span class="s2"> --nproc </span><span class="si">{cfg.nproc}</span><span class="s2">&quot;</span>
+    
+    <span class="k">return</span> <span class="n">command</span>
+
+
+<div class="viewcode-block" id="run_postfMRIprep_pipeline"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.preprocessing_pipeline.run_postfMRIprep_pipeline">[docs]</a><span class="k">def</span> <span class="nf">run_postfMRIprep_pipeline</span><span class="p">(</span><span class="n">cfg_dir</span><span class="p">):</span> 
+
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function submit the python command to the current node</span>
+<span class="sd">    Not to SLURM</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get command </span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">_generate_python_command</span><span class="p">(</span><span class="n">cfg_dir</span><span class="p">)</span>
+    
+    <span class="c1"># run the python script </span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">command</span><span class="p">,</span> <span class="n">shell</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error running script: </span><span class="si">{e}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="submit_postfMRIprep_pipeline_SLURM"><a class="viewcode-back" href="../../bgfc_kit.html#bgfc_kit.preprocessing_pipeline.submit_postfMRIprep_pipeline_SLURM">[docs]</a><span class="k">def</span> <span class="nf">submit_postfMRIprep_pipeline_SLURM</span><span class="p">(</span><span class="n">cfg_dir</span><span class="p">,</span> <span class="n">shell_dir</span><span class="p">,</span> <span class="n">account</span><span class="p">,</span> <span class="n">partition</span><span class="p">,</span> <span class="n">jobname</span><span class="p">,</span> <span class="n">memory</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;1-00:00:00&quot;</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%x</span><span class="s2">_%A_</span><span class="si">%a</span><span class="s2">.log&quot;</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="s2">&quot;jupyterlab-tf-pyt-20211020&quot;</span><span class="p">):</span>
+    
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function first write out a shell script, then submit the python command to SLURM</span>
+<span class="sd">    Parameters: </span>
+<span class="sd">    cfg_dir: the directory of the configuration file </span>
+<span class="sd">    shell_dir: where to write the shell script, including script&#39;s name </span>
+<span class="sd">    account: the lab account (e.g., hulacon) </span>
+<span class="sd">    partition: the node partition (e.g., long, short, fat) </span>
+<span class="sd">    memory: the amount of memory (e.g., 100GB)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># get command </span>
+    <span class="n">command</span> <span class="o">=</span> <span class="n">_generate_python_command</span><span class="p">(</span><span class="n">cfg_dir</span><span class="p">)</span>
+    
+    <span class="c1"># write shell scritp </span>
+    <span class="n">bash_script_content</span> <span class="o">=</span> \
+<span class="sa">f</span><span class="s1">&#39;&#39;&#39;#!/bin/bash</span>
+<span class="s1">#SBATCH --account=</span><span class="si">{account}</span><span class="s1"></span>
+<span class="s1">#SBATCH --partition=</span><span class="si">{partition}</span><span class="s1">  </span>
+<span class="s1">#SBATCH --job-name=</span><span class="si">{jobname}</span><span class="s1">  </span>
+<span class="s1">#SBATCH --mem=</span><span class="si">{memory}</span><span class="s1"></span>
+<span class="s1">#SBATCH --time=</span><span class="si">{time}</span><span class="s1"></span>
+<span class="s1">#SBATCH --output=</span><span class="si">{log}</span><span class="s1"></span>
+
+<span class="s1">module load fsl</span>
+<span class="s1">module load ants</span>
+<span class="s1">module load miniconda</span>
+<span class="s1">module load singularity</span>
+<span class="s1">conda activate </span><span class="si">{env}</span><span class="s1"></span>
+
+<span class="si">{command}</span><span class="s1"></span>
+<span class="s1">&#39;&#39;&#39;</span>
+
+    <span class="c1"># Write the Bash script content to a file</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">shell_dir</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bash_script_content</span><span class="p">)</span>
+
+    <span class="c1"># Submit the Bash script using sbatch</span>
+    <span class="n">sbatch_command</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sbatch&#39;</span><span class="p">,</span> <span class="n">shell_dir</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">sbatch_command</span><span class="p">,</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Check the result</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bash script submitted successfully.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Job ID:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error submitting Bash script.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Error message:&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span></div>
+
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2023, Peeta Li
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
