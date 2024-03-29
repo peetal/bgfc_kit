@@ -690,3 +690,34 @@ def participation_coefficient(G, module_partition):
                 pc_dict[v] = 1 - ((float(wm_degree) / float(degree))**2)
 
     return pc_dict
+
+def compute_network_pc(pc, partition): 
+    '''
+    This function takes in the PC for each parcel, then compute the PC for each network. 
+
+    Parameters
+    ----------
+    PC:
+        A (subject-level) dict with 200 items, one for each parcel 
+    partition:
+        A dictionary mapping each community name to a list of nodes in G
+
+    Returns
+    -------
+    network_pc:
+        PC measure for each network included in the input partition list. 
+    '''
+    # get network structure
+    partition_reverse = {}
+    for k, v in partition.items(): 
+        for p in v: 
+            partition_reverse[str(p)] = k 
+
+    # compute PC for each network 
+    network_pc = defaultdict(list)
+    for k, v in pc.items(): 
+        network_pc[partition_reverse[k]].append(v)
+    for k, v in network_pc.items(): 
+        network_pc[k] = np.mean(v)
+    
+    return list(network_pc.values()) 

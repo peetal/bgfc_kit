@@ -24,5 +24,6 @@ from .bgfc_analyses import (
     construct_graphs,
     compute_threshold,
     construct_threshold_binary_graphs,
-    participation_coefficient
+    participation_coefficient,
+    compute_network_pc
 )
